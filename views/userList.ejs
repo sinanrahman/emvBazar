@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= type.charAt(0).toUpperCase() + type.slice(1) %> Users | EMV Bazar
+    </title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --primary-orange: #f97316;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--text-dark);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        main {
+            padding: 1.5rem 1rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header-section {
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-weight: 800;
+            text-transform: capitalize;
+            font-size: 1.5rem;
+        }
+
+        .table-container {
+            background: white;
+            padding: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.25rem;
+            }
+
+            .table-container {
+                padding: 0.75rem;
+                border-radius: 12px;
+            }
+
+            .dataTables_filter {
+                margin-bottom: 1rem !important;
+            }
+
+            .dataTables_filter input {
+                width: 100% !important;
+                margin-left: 0 !important;
+            }
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-unpaid {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        #userTable tbody tr {
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        #userTable tbody tr:active {
+            background: #fff7ed;
+        }
+
+        /* Hide pagination numbers on small mobile to save space */
+        @media (max-width: 480px) {
+            .pagination {
+                font-size: 0.8rem;
+            }
+
+            .dataTables_info {
+                display: none;
+            }
+        }
+
+        /* Shared Back Button at Bottom Left */
+        .bottom-back-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-back-btn {
+                bottom: 85px;
+            }
+
+            /* Above mobile nav */
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <a href="javascript:history.back()" class="bottom-back-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+
+        <main>
+            <div class="header-section">
+                <h2>
+                    <%= type %> Customers
+                </h2>
+            </div>
+
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table id="userTable" class="table table-hover nowrap" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(user=> { %>
+                                <tr onclick="window.location='/user/<%= user._id %>'">
+                                    <td class="fw-semibold">
+                                        <%= user.username %>
+                                    </td>
+                                    <td>
+                                        <%= user.phone %>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="status-badge <%= user.status === 'paid' ? 'status-paid' : 'status-unpaid' %>">
+                                            <%= user.status.toUpperCase() %>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Scripts -->
+        <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+        <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                $('#userTable').DataTable({
+                    responsive: true,
+                    dom: 'ftip',
+                    language: {
+                        searchPlaceholder: "Search...",
+                        search: "",
+                        paginate: {
+                            previous: "‹",
+                            next: "›"
+                        }
+                    },
+                    pageLength: 15
+                });
+                $('.dataTables_filter input').addClass('form-control');
+            });
+        </script>
+</body>
+
+</html>

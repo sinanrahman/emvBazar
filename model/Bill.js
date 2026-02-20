@@ -41,9 +41,8 @@ const billSchema = new mongoose.Schema({
 });
 
 // Calculate total amount before saving
-billSchema.pre('save', function (next) {
+billSchema.pre('save', function () {
     this.totalAmount = this.items.reduce((total, item) => total + item.amount, 0);
-    next();
 });
 
 module.exports = mongoose.model('Bill', billSchema);

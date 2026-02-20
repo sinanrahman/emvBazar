@@ -31,22 +31,6 @@
             min-height: 100vh;
         }
 
-        nav {
-            background: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--primary-orange);
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary-orange);
-            text-decoration: none;
-        }
-
         .container {
             max-width: 600px;
             margin: 3rem auto;
@@ -136,70 +120,110 @@
         .back-link:hover {
             color: var(--primary-orange);
         }
+
+        /* Shared Back Button at Bottom Left */
+        .bottom-back-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-back-btn {
+                bottom: 85px;
+            }
+
+            /* Above mobile nav */
+        }
     </style>
 </head>
 
 <body>
-    <nav>
-        <a href="/" class="logo">EMV Bazar</a>
-        <div class="nav-links">
-            <a href="/logout" style="text-decoration: none; color: black; font-weight: 600;">Logout</a>
+    <%- include('partials/navbar') %>
+
+        <a href="javascript:history.back()" class="bottom-back-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+
+        <div class="container">
+            <h2>Add New User</h2>
+
+            <% if (success) { %>
+                <div class="alert alert-success">
+                    <%= success %>
+                </div>
+                <% } %>
+
+                    <% if (error) { %>
+                        <div class="alert alert-error">
+                            <%= error %>
+                        </div>
+                        <% } %>
+
+                            <form action="/add-user" method="POST">
+                                <div class="form-group">
+                                    <label for="username">Customer Name</label>
+                                    <input type="text" id="username" name="username" required
+                                        placeholder="Ex: John Doe">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="text" id="phone" name="phone" required
+                                        placeholder="Ex: +91 9876543210">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="type">User Type</label>
+                                    <select id="type" name="type" required>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="fixed">Fixed</option>
+                                        <option value="uncertain">Uncertain</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="status">Debt Status</label>
+                                    <select id="status" name="status" required>
+                                        <option value="unpaid">Unpaid</option>
+                                        <option value="paid">Paid</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="dueDate">Due Date (Optional)</label>
+                                    <input type="date" id="dueDate" name="dueDate">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="billNeeded">Bill Needed?</label>
+                                    <select id="billNeeded" name="billNeeded">
+                                        <option value="false">No (Default)</option>
+                                        <option value="true">Yes</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn-submit">Add User</button>
+                            </form>
+
+                            <a href="/" class="back-link">← Back to Dashboard</a>
         </div>
-    </nav>
-
-    <div class="container">
-        <h2>Add New User</h2>
-
-        <% if (success) { %>
-            <div class="alert alert-success">
-                <%= success %>
-            </div>
-            <% } %>
-
-                <% if (error) { %>
-                    <div class="alert alert-error">
-                        <%= error %>
-                    </div>
-                    <% } %>
-
-                        <form action="/add-user" method="POST">
-                            <div class="form-group">
-                                <label for="username">Customer Name</label>
-                                <input type="text" id="username" name="username" required placeholder="Ex: John Doe">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="text" id="phone" name="phone" required placeholder="Ex: +91 9876543210">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="type">User Type</label>
-                                <select id="type" name="type" required>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="fixed">Fixed</option>
-                                    <option value="uncertain">Uncertain</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="status">Debt Status</label>
-                                <select id="status" name="status" required>
-                                    <option value="unpaid">Unpaid</option>
-                                    <option value="paid">Paid</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="dueDate">Due Date (Optional)</label>
-                                <input type="date" id="dueDate" name="dueDate">
-                            </div>
-
-                            <button type="submit" class="btn-submit">Add User</button>
-                        </form>
-
-                        <a href="/" class="back-link">← Back to Dashboard</a>
-    </div>
 </body>
 
 </html>

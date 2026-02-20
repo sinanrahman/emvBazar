@@ -1,0 +1,155 @@
+<nav class="desktop-nav no-print">
+    <a href="/" class="logo">EMV Bazar</a>
+    <div class="nav-links">
+        <a href="/" class="<%= currentPage === 'home' ? 'active' : '' %>">Home</a>
+        <a href="/add-user" class="<%= currentPage === 'addUser' ? 'active' : '' %> add-btn">Add User</a>
+        <a href="/bills" class="<%= currentPage === 'bills' ? 'active' : '' %>">Bills</a>
+        <a href="/logout">Logout</a>
+    </div>
+</nav>
+
+<nav class="mobile-nav no-print">
+    <a href="/" class="mobile-nav-item <%= currentPage === 'home' ? 'active' : '' %>">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Home</span>
+    </a>
+    <a href="/add-user" class="mobile-nav-item add-btn-mobile <%= currentPage === 'addUser' ? 'active' : '' %>">
+        <div class="add-icon-wrapper">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="white" stroke-width="3">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </div>
+    </a>
+    <a href="/bills" class="mobile-nav-item <%= currentPage === 'bills' ? 'active' : '' %>">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19h16"></path>
+            <path d="M4 15h16"></path>
+            <path d="M4 11h16"></path>
+            <path d="M4 7h16"></path>
+        </svg>
+        <span>Bills</span>
+    </a>
+</nav>
+
+<style>
+    :root {
+        --primary-orange: #f97316;
+        --primary-green: #22c55e;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+    }
+
+    /* Desktop Nav Styles */
+    .desktop-nav {
+        background: white;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid var(--primary-orange);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary-orange);
+        text-decoration: none;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-left: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+        background: #fff7ed;
+        color: var(--primary-orange);
+    }
+
+    .add-btn {
+        background: var(--primary-green) !important;
+        color: white !important;
+    }
+
+    .add-btn:hover {
+        background: #16a34a !important;
+    }
+
+    /* Mobile Nav Styles */
+    .mobile-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        height: 70px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        justify-content: space-around;
+        align-items: center;
+        padding-bottom: env(safe-area-inset-bottom);
+        border-top: 1px solid var(--border);
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+    .mobile-nav-item.active {
+        color: var(--primary-orange);
+    }
+
+    .add-icon-wrapper {
+        background: var(--primary-green);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -40px;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        border: 5px solid white;
+    }
+
+    @media (max-width: 768px) {
+        .desktop-nav {
+            display: none;
+        }
+
+        .mobile-nav {
+            display: flex;
+        }
+
+        main,
+        .container {
+            margin-bottom: 80px !important;
+            /* Space for bottom nav */
+        }
+    }
+</style>

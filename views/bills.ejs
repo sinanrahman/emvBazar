@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Invoice | EMV Bazar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        :root {
+            --primary-orange: #f97316;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--text-dark);
+            padding-bottom: 50px;
+        }
+
+        .invoice-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+
+        .no-print-btns {
+            max-width: 900px;
+            margin: 0 auto 1rem auto;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .header-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-orange);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .invoice-details {
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        th {
+            background-color: #f8fafc;
+            border-bottom: 2px solid var(--border);
+            padding: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .item-row input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            padding: 0.25rem;
+            border-radius: 4px;
+        }
+
+        .item-row input:focus {
+            background: #fff7ed;
+            border-bottom: 1px solid var(--primary-orange);
+        }
+
+        .qty-input,
+        .price-input {
+            text-align: center;
+            width: 80px !important;
+        }
+
+        .amount-td {
+            text-align: right;
+            font-weight: 700;
+            width: 120px;
+        }
+
+        .add-row-btn {
+            background: none;
+            border: 2px dashed var(--border);
+            color: var(--text-muted);
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .add-row-btn:hover {
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+            background: #fff7ed;
+        }
+
+        .grand-total {
+            margin-top: 2rem;
+            text-align: right;
+            padding-top: 1rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .grand-total span {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-orange);
+        }
+
+        /* Mobile Fixes for Overflow */
+        @media (max-width: 768px) {
+            .invoice-card {
+                padding: 1rem;
+                margin: 0.75rem;
+                border-radius: 12px;
+            }
+
+            .header-logo {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .qty-input,
+            .price-input {
+                width: 60px !important;
+                font-size: 0.9rem;
+            }
+
+            .amount-td {
+                width: 100px;
+                font-size: 0.9rem;
+            }
+
+            th,
+            td {
+                padding: 0.5rem;
+            }
+
+            .grand-total span {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+
+            .no-print,
+            .no-print-btns,
+            .add-row-btn,
+            .remove-btn,
+            .bottom-nav,
+            .bottom-back-btn,
+            nav {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .invoice-card {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .item-row input {
+                border: none !important;
+            }
+        }
+
+        .remove-btn {
+            color: #ef4444;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+        }
+
+        .bottom-back-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        
+
+        <div class="invoice-card">
+            <div class="header-logo">EMV BAZAR</div>
+
+            <div class="invoice-details row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label small text-muted fw-bold">BILL TO</label>
+                    <select class="form-select" id="customerSelect" onchange="updateCustomerInfo()">
+                        <option value="">Select Customer</option>
+                        <% users.forEach(user=> { %>
+                            <option value="<%= user.username %>" data-phone="<%= user.phone %>">
+                                <%= user.username %> (<%= user.phone %>)
+                            </option>
+                            <% }); %>
+                    </select>
+                    <input type="text" class="form-control mt-2" id="customerName" placeholder="Customer Name">
+                </div>
+                <div class="col-md-6 mb-3 text-md-end">
+                    <div class="mb-2">
+                        <label class="small text-muted fw-bold">DATE</label>
+                        <input type="date" class="form-control d-inline-block w-auto ms-2" id="billDate">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive" style="overflow-x: auto;">
+                <table id="invoiceTable">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 150px;">Item Description</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Price(₹)</th>
+                            <th class="text-end">Total(₹)</th>
+                            <th class="no-print"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemBody">
+                        <tr class="item-row">
+                            <td><input type="text" class="item-name" placeholder="Enter item name"></td>
+                            <td><input type="number" class="qty-input" value="1" oninput="calculateRow(this)"></td>
+                            <td><input type="number" class="price-input" placeholder="0" oninput="calculateRow(this)">
+                            </td>
+                            <td class="amount-td text-end">0.00</td>
+                            <td class="no-print text-center"><button class="remove-btn"
+                                    onclick="removeRow(this)">×</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <button class="add-row-btn no-print" onclick="addRow()">+ Add New Item</button>
+
+            <div class="grand-total">
+                <p class="text-muted fw-bold mb-1" style="font-size: 0.9rem;">TOTAL AMOUNT</p>
+                <span>₹<span id="allTotal">0.00</span></span>
+            </div>
+
+            <div class="no-print-btns mt-4 px-3">
+            <button class="btn btn-success w-100 py-3 fw-bold" id="generateBillBtn" onclick="generateBill()">GENERATE &
+                VIEW INVOICE</button>
+        </div>
+        </div>
+
+
+        <script>
+            // Set default date to today
+            document.getElementById('billDate').valueAsDate = new Date();
+
+            function addRow() {
+                const tbody = document.getElementById('itemBody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'item-row';
+                newRow.innerHTML = `
+                <td><input type="text" class="item-name" placeholder="Enter item name"></td>
+                <td><input type="number" class="qty-input" value="1" oninput="calculateRow(this)"></td>
+                <td><input type="number" class="price-input" placeholder="0" oninput="calculateRow(this)"></td>
+                <td class="amount-td text-end">0.00</td>
+                <td class="no-print text-center"><button class="remove-btn" onclick="removeRow(this)">×</button></td>
+            `;
+                tbody.appendChild(newRow);
+            }
+
+            function removeRow(btn) {
+                const row = btn.parentNode.parentNode;
+                if (document.querySelectorAll('.item-row').length > 1) {
+                    row.remove();
+                    calculateGrandTotal();
+                }
+            }
+
+            function calculateRow(input) {
+                const row = input.parentNode.parentNode;
+                const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                const amountTd = row.querySelector('.amount-td');
+
+                const total = qty * price;
+                amountTd.innerText = total.toFixed(2);
+                calculateGrandTotal();
+            }
+
+            function calculateGrandTotal() {
+                let total = 0;
+                document.querySelectorAll('.amount-td').forEach(td => {
+                    total += parseFloat(td.innerText) || 0;
+                });
+                document.getElementById('allTotal').innerText = total.toFixed(2);
+            }
+
+            function updateCustomerInfo() {
+                const select = document.getElementById('customerSelect');
+                const nameInput = document.getElementById('customerName');
+                if (select.value) {
+                    nameInput.value = select.value;
+                }
+            }
+
+            async function generateBill() {
+                const genBtn = document.getElementById('generateBillBtn');
+                const customerName = document.getElementById('customerName').value;
+                const select = document.getElementById('customerSelect');
+                const phone = select.options[select.selectedIndex]?.dataset.phone || "";
+                const date = document.getElementById('billDate').value;
+                const items = [];
+
+                if (!customerName) {
+                    alert("Please enter a customer name.");
+                    return;
+                }
+
+                document.querySelectorAll('.item-row').forEach(row => {
+                    const itemName = row.querySelector('.item-name').value;
+                    const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                    const amount = parseFloat(row.querySelector('.amount-td').innerText) || 0;
+
+                    if (itemName && amount > 0) {
+                        items.push({ item: itemName, quantity: qty, unitPrice: price, amount: amount });
+                    }
+                });
+
+                if (items.length === 0) {
+                    alert("Please add at least one item.");
+                    return;
+                }
+
+                const totalAmount = parseFloat(document.getElementById('allTotal').innerText);
+
+                genBtn.disabled = true;
+                genBtn.innerText = "GENERATING INVOICE...";
+
+                try {
+                    const response = await fetch('/api/save-bill', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: customerName, phone, date, items, totalAmount })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        window.location.href = `/view-bill/${data.billId}`;
+                    } else {
+                        const err = await response.text();
+                        alert("Generation Error: " + err);
+                    }
+                } catch (error) {
+                    alert("Network error: " + error.message);
+                } finally {
+                    genBtn.disabled = false;
+                    genBtn.innerText = "GENERATE & VIEW INVOICE";
+                }
+            }
+        </script>
+</body>
+
+</html>

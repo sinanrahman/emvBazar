@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['monthly', 'fixed', 'uncertain'],
         default: 'monthly'
+    },
+    billNeeded: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User | EMV Bazar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #f97316;
+            --primary-green: #22c55e;
+            --bg-white: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 800;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--primary-orange);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Shared Back Button at Bottom Left */
+        .bottom-back-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-back-btn {
+                bottom: 85px;
+            }
+
+            /* Above mobile nav */
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <a href="javascript:history.back()" class="bottom-back-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+
+        <div class="container">
+            <h2>Edit Customer</h2>
+
+            <form action="/user/<%= user._id %>/edit" method="POST">
+                <div class="form-group">
+                    <label for="username">Customer Name</label>
+                    <input type="text" id="username" name="username" value="<%= user.username %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text" id="phone" name="phone" value="<%= user.phone %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">User Type</label>
+                    <select id="type" name="type" required>
+                        <option value="monthly" <%=user.type==='monthly' ? 'selected' : '' %>>Monthly</option>
+                        <option value="fixed" <%=user.type==='fixed' ? 'selected' : '' %>>Fixed</option>
+                        <option value="uncertain" <%=user.type==='uncertain' ? 'selected' : '' %>>Uncertain</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">Debt Status</label>
+                    <select id="status" name="status" required>
+                        <option value="unpaid" <%=user.status==='unpaid' ? 'selected' : '' %>>Unpaid</option>
+                        <option value="paid" <%=user.status==='paid' ? 'selected' : '' %>>Paid</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dueDate">Due Date</label>
+                    <input type="date" id="dueDate" name="dueDate"
+                        value="<%= user.dueDate ? user.dueDate.toISOString().split('T')[0] : '' %>">
+                </div>
+
+                <div class="form-group">
+                    <label for="billNeeded">Bill Needed?</label>
+                    <select id="billNeeded" name="billNeeded">
+                        <option value="false" <%=!user.billNeeded ? 'selected' : '' %>>No</option>
+                        <option value="true" <%=user.billNeeded ? 'selected' : '' %>>Yes</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">Update Details</button>
+            </form>
+        </div>
+</body>
+
+</html>

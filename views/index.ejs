@@ -31,47 +31,6 @@
             min-height: 100vh;
         }
 
-        nav {
-            background: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--primary-orange);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary-orange);
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-dark);
-            font-weight: 600;
-            margin-left: 1.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-        .nav-links a:hover {
-            background: #fff7ed;
-            color: var(--primary-orange);
-        }
-
-        .add-btn {
-            background: var(--primary-green) !important;
-            color: white !important;
-        }
-
-        .add-btn:hover {
-            background: #16a34a !important;
-            color: white !important;
-        }
-
         main {
             padding: 3rem 2rem;
             max-width: 1000px;
@@ -82,52 +41,55 @@
             margin-bottom: 2rem;
             font-size: 1.8rem;
             font-weight: 800;
+            text-align: center;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .box {
             background: white;
-            padding: 2.5rem 1.5rem;
+            padding: 1.25rem 1.5rem;
             border-radius: 16px;
             border: 1px solid var(--border);
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
         }
 
         .box:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary-orange);
         }
 
         .box.monthly {
-            border-top: 5px solid var(--primary-orange);
+            border-left: 8px solid var(--primary-orange);
         }
 
         .box.fixed {
-            border-top: 5px solid var(--primary-green);
+            border-left: 8px solid var(--primary-green);
         }
 
         .box.uncertain {
-            border-top: 5px solid #64748b;
+            border-left: 8px solid #64748b;
         }
 
-        .box h3 {
-            font-size: 1.1rem;
-            color: var(--text-muted);
+        .box h2 {
+            font-size: 2rem;
+            /* color: var(--text-muted); */
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 1rem;
+            margin-bottom: 0;
         }
 
         .box .count {
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: 800;
             color: var(--text-dark);
         }
@@ -135,46 +97,55 @@
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .box {
+                padding: 1rem 1.25rem;
+            }
+
+            .box .count {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 
 <body>
-    <nav>
-        <div class="logo">EMV Bazar</div>
-        <div class="nav-links">
-            <a href="/add-user" class="add-btn">Add User</a>
-            <a href="/logout">Logout</a>
-        </div>
-    </nav>
+    <%- include('partials/navbar') %>
 
-    <main>
-        <h2>Debt Tracking Overview</h2>
+        <main>
+            <h2>Debt Tracker</h2>
 
-        <div class="grid">
-            <div class="box monthly">
-                <h3>Monthly</h3>
-                <div class="count">
-                    <%= monthlyCount %>
-                </div>
+            <div class="grid">
+                <a href="/users/monthly" style="text-decoration: none; color: inherit;">
+                    <div class="box monthly">
+                        <h2>Monthly</h2>
+                        <div class="count">
+                            <%= monthlyCount %>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/users/fixed" style="text-decoration: none; color: inherit;">
+                    <div class="box fixed">
+                        <h2>Fixed</h2>
+                        <div class="count">
+                            <%= fixedCount %>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/users/uncertain" style="text-decoration: none; color: inherit;">
+                    <div class="box uncertain">
+                        <h2>Uncertain</h2>
+                        <div class="count">
+                            <%= uncertainCount %>
+                        </div>
+                    </div>
+                </a>
             </div>
-
-            <div class="box fixed">
-                <h3>Fixed</h3>
-                <div class="count">
-                    <%= fixedCount %>
-                </div>
-            </div>
-
-            <div class="box uncertain">
-                <h3>Uncertain</h3>
-                <div class="count">
-                    <%= uncertainCount %>
-                </div>
-            </div>
-        </div>
-    </main>
+        </main>
 </body>
 
 </html>
