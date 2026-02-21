@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice - EMV BAZAR</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/favicon.ico">
@@ -79,6 +80,80 @@
             color: #198754;
         }
 
+        /* Mobile Top Bar */
+        .mobile-top-bar {
+            background: white;
+            padding: 12px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 576px) {
+            body {
+                padding-bottom: 80px;
+                /* Space for mobile bottom navbar */
+            }
+
+            .invoice-card {
+                padding: 20px;
+                margin: 10px;
+                width: calc(100% - 20px);
+                max-width: none;
+                border-radius: 8px;
+            }
+
+            .invoice-title {
+                margin-bottom: 20px;
+                font-size: 1.25rem;
+            }
+
+            .logo-container img {
+                max-height: 70px !important;
+            }
+
+            .grand-total span {
+                font-size: 1.4rem;
+            }
+
+            .info-box .col-6 {
+                width: 100%;
+                text-align: left !important;
+                margin-bottom: 10px;
+            }
+
+            th,
+            td {
+                padding: 8px 5px;
+                font-size: 0.85rem;
+            }
+
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 0 15px;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+                margin: 0 !important;
+            }
+        }
+
         @media print {
             body {
                 background: white;
@@ -95,16 +170,53 @@
                 display: none !important;
             }
         }
+
+        /* Floating Back Button */
+        .bottom-back-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-back-btn {
+                bottom: 85px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <%- include('partials/navbar', { currentPage: 'bills' }) %>
 
-        <div class="text-center mt-4 no-print">
+        <!-- Floating Back Button -->
+        <a href="javascript:history.back()" class="bottom-back-btn no-print">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+
+
+        <div class="text-center mt-4 no-print action-buttons d-none d-md-block">
             <button class="btn btn-outline-success me-2" onclick="window.print()">Print Invoice</button>
             <a href="/bills" class="btn btn-outline-secondary">Back to Billing</a>
         </div>
+
+       
 
         <div class="invoice-card">
             <!-- LOGO -->
@@ -135,7 +247,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Item Description</th>
+                            <th>Items</th>
                             <th class="text-center">Qty</th>
                             <th class="text-center">Price (₹)</th>
                             <th class="text-end">Total (₹)</th>
@@ -180,6 +292,10 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+
+         <div class="text-center mt-2 no-print action-buttons d-md-none">
+            <button class="btn btn-success" onclick="window.print()">Print Invoice</button>
+        </div>
 
 </body>
 

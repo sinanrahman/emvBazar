@@ -54,6 +54,10 @@
             margin-bottom: 0.5rem;
         }
 
+        img{
+            width: 100px;
+        }
+
         p {
             color: var(--text-muted);
             margin-bottom: 2rem;
@@ -117,7 +121,9 @@
 
 <body>
     <div class="login-card">
-        <div class="logo">EMV Bazar</div>
+        <div class="logo">
+            <img src="/image/logo.png" alt="">
+        </div>
         <p>Admin Debt Tracking System</p>
 
         <% if (error) { %>
