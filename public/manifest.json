@@ -1,102 +1,81 @@
 {
-<<<<<<< HEAD
-    "name": "EMV Bazar",
-    "short_name": "EMV Bazar",
+    "name": "emvBazar",
+    "short_name": "emvBazar",
+    "id": "/",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#f97316",
+    "theme_color": "#0d6efd",
     "icons": [
         {
-            "src": "/image/logo.png",
+            "src": "/image/icon-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/image/logo.png",
+            "src": "/image/icon-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         }
+    ],
+    "screenshots": [
+        {
+            "src": "/image/dashboard-desktop.png",
+            "sizes": "1919x966",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Debt Tracker Dashboard"
+        },
+        {
+            "src": "/image/monthly-customers-desktop.png",
+            "sizes": "1919x969",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Monthly Customers Table"
+        },
+        {
+            "src": "/image/add-user-desktop.png",
+            "sizes": "1902x967",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Add New User Form"
+        },
+        {
+            "src": "/image/billing-desktop.png",
+            "sizes": "1900x967",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Invoice Generation Screen"
+        },
+        {
+            "src": "/image/dashboard-mobile.png",
+            "sizes": "519x915",
+            "type": "image/png",
+            "label": "Debt Tracker Dashboard"
+        },
+        {
+            "src": "/image/monthly-customers-mobile.png",
+            "sizes": "521x914",
+            "type": "image/png",
+            "label": "Monthly Customers Table"
+        },
+        {
+            "src": "/image/add-user-mobile.png",
+            "sizes": "520x912",
+            "type": "image/png",
+            "label": "Add New User Form"
+        },
+        {
+            "src": "/image/billing-mobile.png",
+            "sizes": "518x917",
+            "type": "image/png",
+            "label": "Invoice Generation Screen"
+        },
+        {
+            "src": "/image/login-mobile.png",
+            "sizes": "518x911",
+            "type": "image/png",
+            "label": "Login Screen"
+        }
     ]
-=======
-  "name": "emvBazar",
-  "short_name": "emvBazar",
-  "id": "/",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0d6efd",
-  "icons": [
-    {
-      "src": "/image/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/image/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/images/dashboard-desktop.png",
-      "sizes": "1919x966",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Debt Tracker Dashboard"
-    },
-    {
-      "src": "/images/monthly-customers-desktop.png",
-      "sizes": "1919x969",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Monthly Customers Table"
-    },
-    {
-      "src": "/images/add-user-desktop.png",
-      "sizes": "1902x967",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Add New User Form"
-    },
-    {
-      "src": "/images/billing-desktop.png",
-      "sizes": "1900x967",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Invoice Generation Screen"
-    },
-    {
-      "src": "/images/dashboard-mobile.png",
-      "sizes": "519x915",
-      "type": "image/png",
-      "label": "Debt Tracker Dashboard"
-    },
-    {
-      "src": "/images/monthly-customers-mobile.png",
-      "sizes": "521x914",
-      "type": "image/png",
-      "label": "Monthly Customers Table"
-    },
-    {
-      "src": "/images/add-user-mobile.png",
-      "sizes": "520x912",
-      "type": "image/png",
-      "label": "Add New User Form"
-    },
-    {
-      "src": "/images/billing-mobile.png",
-      "sizes": "518x917",
-      "type": "image/png",
-      "label": "Invoice Generation Screen"
-    },
-    {
-      "src": "/images/login-mobile.png",
-      "sizes": "518x911",
-      "type": "image/png",
-      "label": "Login Screen"
-    }
-  ]
->>>>>>> 5a11d4f8de4cf541bfa150114d4353dcd0ae1f91
 }
