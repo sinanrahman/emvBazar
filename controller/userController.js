@@ -1,6 +1,10 @@
 const User = require('../model/User');
 const Bill = require('../model/Bill');
 
+exports.getHomePage = (req, res) => {
+    res.render('home');
+};
+
 exports.getDashboard = async (req, res) => {
     try {
         const monthlyUsers = await User.find({ type: 'monthly' });
@@ -178,7 +182,7 @@ exports.postEditUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     try {
         await User.findByIdAndDelete(req.params.id);
-        res.redirect('/');
+        res.redirect('/dashboard');
     } catch (error) {
         res.status(500).send("Error deleting user");
     }

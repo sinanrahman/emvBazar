@@ -15,15 +15,15 @@ exports.postLogin = async (req, res) => {
         const isMatch = await bcrypt.compare(password, HARDCODED_USER.passwordHash);
         if (isMatch) {
             res.cookie('auth', 'true', { httpOnly: true, maxAge: 3600000 });
-            return res.redirect('/');
+            return res.redirect('/dashboard');
         }
     }
     res.render('login', { error: 'Invalid username or password' });
 };
 
 exports.logout = (req, res) => {
-    res.cookie('auth','false')
-    res.cookie('token',null)
+    res.cookie('auth', 'false')
+    res.cookie('token', null)
 
     res.clearCookie('auth', {
         httpOnly: true

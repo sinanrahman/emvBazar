@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMV BAZAR | Grocery Store in Kerala</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #1b5e20;
+            --accent: #ffc107;
+            --text-main: #1a1a1a;
+            --text-muted: #666;
+            --bg-glass: rgba(255, 255, 255, 0.8);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-glass);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .login-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.6rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+        }
+
+        .login-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 5% 2rem;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            transition: transform 0.5s ease;
+        }
+
+        .hero-image:hover {
+            transform: scale(1.02);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .hero h3 {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .hero .description {
+            max-width: 700px;
+            font-size: 1.1rem;
+            color: #444;
+            margin-bottom: 3rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 5% 5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .card strong {
+            color: var(--text-main);
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 1.5rem 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero h3 {
+                font-size: 1.2rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">
+            <img src="/image/logo.png" alt="EMV BAZAR Logo" style="height: 50px; width: auto; display: block;">
+        </div>
+        <a href="/login" class="login-btn">Admin Login</a>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <img src="/image/shop.png" alt="EMV BAZAR Shop" class="hero-image" id="shopImage">
+            <h1>EMV BAZAR</h1>
+            <h3>Retail Grocery Store</h3>
+            <p class="description">
+                EMV BAZAR is a trusted grocery store located in Eranhimavu, Kerala, India.
+                We provide quality groceries, daily essentials, fresh products and household items.
+            </p>
+        </section>
+
+        <section class="content-grid">
+            <div class="card">
+                <h2>Contact Information</h2>
+                <hr>
+                <p><strong>Phone:</strong> +91 95267 25000</p>
+                <p><strong>Location:</strong> Eranhimavu, Kerala, India</p>
+            </div>
+
+            <div class="card">
+                <h2>Business Hours</h2>
+                <hr>
+                <p><strong>Monday - Sunday:</strong></p>
+                <p>7:00 AM - 11:00 PM</p>
+            </div>
+
+            <div class="card">
+                <h2>Privacy Policy</h2>
+                <hr>
+                <p>
+                    EMV BAZAR respects customer privacy and does not misuse customer data.
+                    We comply with WhatsApp Business and Commerce policies.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2024 EMV BAZAR. All rights reserved.
+    </footer>
+
+</body>
+
+</html>

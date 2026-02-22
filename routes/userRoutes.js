@@ -3,7 +3,8 @@ const router = express.Router();
 const userController = require('../controller/userController');
 const authMiddleware = require('../middleware/auth');
 
-router.get('/', authMiddleware, userController.getDashboard);
+router.get('/', userController.getHomePage);
+router.get('/dashboard', authMiddleware, userController.getDashboard);
 router.get('/users/:type', authMiddleware, userController.getByType);
 router.get('/user/:id', authMiddleware, userController.getUserDetails);
 router.post('/user/:id/transaction', authMiddleware, userController.addTransaction);
