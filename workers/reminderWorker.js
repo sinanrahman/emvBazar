@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const connection = require('../config/redis');
 const User = require('../model/User');
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.DB_URL);
 
 async function sendWhatsAppMessage(phone, name, dueDate) {
   try {
