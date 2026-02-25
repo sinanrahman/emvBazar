@@ -1,28 +1,50 @@
-const { Worker } = require('bullmq');
-const Redis = require('ioredis');
-const axios = require('axios');
 require('dotenv').config();
 
-// ✅ FIXED Redis connection for Upstash + BullMQ
-const connection = new Redis(process.env.REDIS_URL, {
-  maxRetriesPerRequest: null, // REQUIRED for BullMQ
-  tls: {}                     // REQUIRED for Upstash (rediss://)
-});
+const { Worker } = require('bullmq');
+const axios = require('axios');
+const mongoose = require('mongoose');
+const connection = require('../config/redis');
+const User = require('../model/User');
 
-// Send WhatsApp message function
-async function sendWhatsAppMessage(phone, message) {
-  await axios.post(
-    process.env.WHATSAPP_API_URL,
-    { to: phone, message },
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.WHATSAPP_API_KEY}`
+mongoose.connect(process.env.MONGO_URI);
+
+async function sendWhatsAppMessage(phone, name, dueDate) {
+  try {
+    await axios.post(
+      `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`,
+      {
+        messaging_product: "whatsapp",
+        to: "91" + phone, // ✅ No +
+        type: "template",
+        template: {
+          name: "monthly_debt_reminder",
+          language: { code: "en" },
+          components: [
+            {
+              type: "body",
+              parameters: [
+                { type: "text", text: name },
+                { type: "text", text: dueDate }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          "Content-Type": "application/json"
+        }
       }
-    }
-  );
+    );
+
+    console.log(`✅ WhatsApp sent to ${phone}`);
+  } catch (error) {
+    console.error("❌ WhatsApp Error:", error.response?.data || error.message);
+    throw error;
+  }
 }
 
-// Create Worker
 const worker = new Worker(
   'reminderQueue',
   async (job) => {
@@ -30,18 +52,23 @@ const worker = new Worker(
 
     const { username, phone, dueDate } = job.data;
 
-    const message = `Hello ${username}, your payment is due on ${new Date(
-      dueDate
-    ).toLocaleDateString()}. Please pay on time.`;
+    const user = await User.findOne({ phone });
 
-    await sendWhatsAppMessage(phone, message);
+    // ✅ Stop if user not found or already paid
+    if (!user || user.status === "paid" || !user.reminderActive) {
+      console.log("⚠️ Reminder skipped (paid or inactive)");
+      return;
+    }
 
-    console.log(`✅ Reminder sent to ${username}`);
+    const formattedDate = new Date(dueDate).toLocaleDateString();
+
+    await sendWhatsAppMessage(phone, username, formattedDate);
+
+    console.log(`🎉 Reminder sent to ${username}`);
   },
   { connection }
 );
 
-// Worker Events
 worker.on('completed', (job) => {
   console.log(`🎉 Job ${job.id} completed`);
 });

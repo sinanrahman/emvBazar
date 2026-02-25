@@ -1,6 +1,6 @@
 const User = require('../model/User');
 const Bill = require('../model/Bill');
-const { scheduleOneTimeReminder } = require('./messageController');
+const { scheduleOneMinuteReminder } = require('./messageController');
 // const reminderQueue = require('../queues/reminderQueue');
 
 exports.getHomePage = (req, res) => {
@@ -280,30 +280,37 @@ exports.downloadBillPDF = async (req, res) => {
 };
 
 exports.addUser = async (req, res) => {
-    try {
-        const { username, phone, status, dueDate, type, billNeeded } = req.body;
+  try {
+    const { username, phone, status, dueDate, type, billNeeded } = req.body;
 
-        const newUser = new User({
-            username,
-            phone,
-            status,
-            dueDate: dueDate || null,
-            type,
-            billNeeded: billNeeded === 'true'
-        });
+    const newUser = new User({
+      username,
+      phone,
+      status,
+      dueDate: dueDate || null,
+      type,
+      billNeeded: billNeeded === 'true'
+    });
 
-        await newUser.save();
+    await newUser.save();
 
-        // 🔔 Schedule reminder here
-        if (newUser.dueDate) {
-            await scheduleOneTimeReminder(newUser);
-        }
-
-        res.render('addUser', { success: 'User added successfully!', error: null, currentPage: 'addUser' });
-
-    } catch (err) {
-        res.render('addUser', { success: null, error: err.message, currentPage: 'addUser' });
+    if (newUser.dueDate) {
+await scheduleOneMinuteReminder(newUser);
     }
+
+    res.render('addUser', {
+      success: 'User added successfully!',
+      error: null,
+      currentPage: 'addUser'
+    });
+
+  } catch (err) {
+    res.render('addUser', {
+      success: null,
+      error: err.message,
+      currentPage: 'addUser'
+    });
+  }
 };
 
 // exports.addUser = async (req, res) => {

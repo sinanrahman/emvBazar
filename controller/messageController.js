@@ -1,34 +1,28 @@
 // controller/messageController.js
 const reminderQueue = require('../queues/reminderQueue');
 
-async function scheduleOneTimeReminder(user) {
-  if (!user.dueDate) {
-    console.log("No due date found. Skipping reminder.");
-    return;
-  }
+async function scheduleOneMinuteReminder(user) {
 
-  const delay = new Date(user.dueDate).getTime() - Date.now();
-
-  if (delay <= 0) {
-    console.log("Due date already passed. Not scheduling.");
-    return;
-  }
+  const delay = 60 * 1000; // ✅ 1 minute in milliseconds
 
   await reminderQueue.add(
-    'paymentReminder', // job name
+    'paymentReminder',
     {
       username: user.username,
       phone: user.phone,
-      dueDate: user.dueDate
+      dueDate: user.dueDate || null
     },
     {
       delay,
       attempts: 3,
-      backoff: 5000
+      backoff: {
+        type: 'exponential',
+        delay: 5000
+      }
     }
   );
 
-  console.log(`One-time reminder scheduled for ${user.username}`);
+  console.log(`✅ 1-minute reminder scheduled for ${user.username}`);
 }
 
-module.exports = { scheduleOneTimeReminder };
+module.exports = { scheduleOneMinuteReminder };
