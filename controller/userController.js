@@ -1,7 +1,6 @@
 const User = require('../model/User');
 const Bill = require('../model/Bill');
 const { scheduleOneMinuteReminder } = require('./messageController');
-// const reminderQueue = require('../queues/reminderQueue');
 
 exports.getHomePage = (req, res) => {
     res.render('home');
@@ -28,24 +27,6 @@ exports.getDashboard = async (req, res) => {
 exports.getAddUser = (req, res) => {
     res.render('addUser', { success: null, error: null, currentPage: 'addUser' });
 };
-
-// exports.postAddUser = async (req, res) => {
-//     try {
-//         const { username, phone, status, dueDate, type, billNeeded } = req.body;
-//         const newUser = new User({
-//             username,
-//             phone,
-//             status,
-//             dueDate: dueDate || null,
-//             type,
-//             billNeeded: billNeeded === 'true'
-//         });
-//         await newUser.save();
-//         res.render('addUser', { success: 'User added successfully!', error: null, currentPage: 'addUser' });
-//     } catch (err) {
-//         res.render('addUser', { success: null, error: err.message, currentPage: 'addUser' });
-//     }
-// };
 
 exports.getBills = async (req, res) => {
     try {
@@ -364,41 +345,3 @@ exports.addUser = async (req, res) => {
         });
     }
 };
-
-// exports.addUser = async (req, res) => {
-//   try {
-//     const user = new User(req.body);
-//     await user.save();
-
-//     // Schedule reminder after saving
-//     scheduleOneTimeReminder(user);
-
-//     res.redirect('/userList');
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).send('Error adding user');
-//   }
-// };
-
-// async function scheduleOneTimeReminder(user) {
-//   const delay = new Date(user.dueDate).getTime() - Date.now();
-
-//   if (delay <= 0) {
-//     console.log("Due date already passed. Not scheduling.");
-//     return;
-//   }
-
-//   await reminderQueue.add(
-//     'paymentReminder',
-//     {
-//       username: user.username,
-//       phone: user.phone,
-//       dueDate: user.dueDate
-//     },
-//     {
-//       delay: delay
-//     }
-//   );
-
-//   console.log(`Reminder scheduled for ${user.username}`);
-// }

@@ -2,8 +2,8 @@ const bcrypt = require('bcryptjs');
 
 const HARDCODED_USER = {
     username: "admin",
-    passwordHash: "$2b$10$.uId8do.q9E21B1wLH3fy.0FQkkjumRfQ90J5K9IIkONTgdwmPsRq"
-};
+    passwordHash : process.env.PASSWORDHASH
+};  
 
 exports.getLogin = (req, res) => {
     res.render('login', { error: null });

@@ -1,4 +1,3 @@
-// config/redis.js
 require('dotenv').config();  // 🔥 VERY IMPORTANT
 
 const IORedis = require('ioredis');

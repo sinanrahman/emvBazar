@@ -1,4 +1,3 @@
-// controller/messageController.js
 const reminderQueue = require('../queues/reminderQueue');
 
 async function scheduleOneMinuteReminder(user) {
