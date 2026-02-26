@@ -85,6 +85,16 @@ exports.getUserDetails = async (req, res) => {
     }
 };
 
+exports.getUserHistory = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: -1 });
+        res.render('userHistory', { user, bills, currentPage: 'home' });
+    } catch (error) {
+        res.status(500).send("Error loading purchase history");
+    }
+};
+
 exports.addTransaction = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -280,37 +290,37 @@ exports.downloadBillPDF = async (req, res) => {
 };
 
 exports.addUser = async (req, res) => {
-  try {
-    const { username, phone, status, dueDate, type, billNeeded } = req.body;
+    try {
+        const { username, phone, status, dueDate, type, billNeeded } = req.body;
 
-    const newUser = new User({
-      username,
-      phone,
-      status,
-      dueDate: dueDate || null,
-      type,
-      billNeeded: billNeeded === 'true'
-    });
+        const newUser = new User({
+            username,
+            phone,
+            status,
+            dueDate: dueDate || null,
+            type,
+            billNeeded: billNeeded === 'true'
+        });
 
-    await newUser.save();
+        await newUser.save();
 
-    if (newUser.dueDate) {
-await scheduleOneMinuteReminder(newUser);
+        if (newUser.dueDate) {
+            await scheduleOneMinuteReminder(newUser);
+        }
+
+        res.render('addUser', {
+            success: 'User added successfully!',
+            error: null,
+            currentPage: 'addUser'
+        });
+
+    } catch (err) {
+        res.render('addUser', {
+            success: null,
+            error: err.message,
+            currentPage: 'addUser'
+        });
     }
-
-    res.render('addUser', {
-      success: 'User added successfully!',
-      error: null,
-      currentPage: 'addUser'
-    });
-
-  } catch (err) {
-    res.render('addUser', {
-      success: null,
-      error: err.message,
-      currentPage: 'addUser'
-    });
-  }
 };
 
 // exports.addUser = async (req, res) => {

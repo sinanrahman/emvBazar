@@ -10,8 +10,8 @@
     </title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/favicon.ico">
-<meta name="theme-color" content="#0d6efd">
-<link rel="apple-touch-icon" href="/image/icon-192x192.png">
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="apple-touch-icon" href="/image/icon-192x192.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <style>
@@ -227,7 +227,8 @@
                     <% if (bills.length===0) { %>
                         <p class="text-center text-muted py-3">No history found.</p>
                         <% } else { %>
-                            <% bills.sort((a,b)=> b.createdAt - a.createdAt).forEach(bill => { %>
+                            <% bills.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).slice(0,
+                                3).forEach(bill => { %>
                                 <div class="transaction-item">
                                     <span class="date">
                                         <%= new Date(bill.createdAt).toLocaleDateString(undefined, {month: 'short' ,
@@ -265,6 +266,8 @@
                     <div class="modal-body p-4 text-center">
                         <h5 class="fw-bold mb-4">Manage Customer</h5>
                         <div class="d-grid gap-2">
+                            <a href="/user/<%= user._id %>/history" class="btn btn-outline-success py-2"
+                                style="border-radius: 10px;">Purchase History</a>
                             <a href="/user/<%= user._id %>/edit" class="btn btn-outline-primary py-2"
                                 style="border-radius: 10px;">Edit Details</a>
                             <form action="/user/<%= user._id %>/delete" method="POST"
@@ -305,19 +308,19 @@
             </div>
         </div>
         <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        console.log("Service Worker registered:", registration.scope);
-      })
-      .catch((err) => {
-        console.log("Service Worker registration failed:", err);
-      });
-  });
-}
-</script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker
+                        .register("/sw.js")
+                        .then((registration) => {
+                            console.log("Service Worker registered:", registration.scope);
+                        })
+                        .catch((err) => {
+                            console.log("Service Worker registration failed:", err);
+                        });
+                });
+            }
+        </script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
