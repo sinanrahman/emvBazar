@@ -97,10 +97,33 @@ exports.getUserHistory = async (req, res) => {
 
 exports.getHistoryInvoice = async (req, res) => {
     try {
+        const { startDate, endDate, filter } = req.query;
         const user = await User.findById(req.params.id);
-        const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: 1 }); // Sort by date ascending for invoice
-        res.render('historyinvoice', { user, bills, currentPage: 'home' });
+
+        let query = { phone: user.phone };
+        let dateFilter = {};
+
+        if (filter === '1month') {
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            dateFilter.$gte = oneMonthAgo;
+        } else if (filter === '1.5month') {
+            const oneAndHalfMonthAgo = new Date();
+            oneAndHalfMonthAgo.setDate(oneAndHalfMonthAgo.getDate() - 45);
+            dateFilter.$gte = oneAndHalfMonthAgo;
+        } else if (startDate || endDate) {
+            if (startDate) dateFilter.$gte = new Date(startDate);
+            if (endDate) dateFilter.$lte = new Date(endDate);
+        }
+
+        if (Object.keys(dateFilter).length > 0) {
+            query.createdAt = dateFilter;
+        }
+
+        const bills = await Bill.find(query).sort({ createdAt: 1 });
+        res.render('historyinvoice', { user, bills, currentPage: 'home', filterRange: { startDate, endDate, filter } });
     } catch (error) {
+        console.error("Invoice Error:", error);
         res.status(500).send("Error generating history invoice");
     }
 };

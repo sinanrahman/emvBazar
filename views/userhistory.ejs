@@ -150,6 +150,47 @@
         .transaction-item.payment .amount {
             color: var(--primary-green);
         }
+
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-chip {
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1px solid transparent;
+        }
+
+        .filter-chip.active {
+            background: #fff7ed;
+            color: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
     </style>
 </head>
 
@@ -171,19 +212,41 @@
                     <p>
                         <%= user.username %> | <%= user.phone %>
                     </p>
-                    <a href="/user/<%= user._id %>/history/invoice" class="btn btn-primary mt-2 no-print"
-                        style="border-radius: 10px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" class="me-1">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        Generate Statement
-                    </a>
                 </div>
+            </div>
+
+            <div class="filter-section no-print">
+                <h6 class="fw-bold small text-muted text-uppercase mb-3">Filter for Invoice</h6>
+
+                <div class="quick-filters">
+                    <div class="filter-chip" data-filter="1month">Last 1 Month</div>
+                    <div class="filter-chip" data-filter="1.5month">Last 1.5 Month</div>
+                    <div class="filter-chip" data-filter="all" id="clearFilter">All Time</div>
+                </div>
+
+                <div class="filter-grid">
+                    <div>
+                        <label class="form-label small fw-bold">From</label>
+                        <input type="date" id="startDate" class="form-control form-control-sm">
+                    </div>
+                    <div>
+                        <label class="form-label small fw-bold">To</label>
+                        <input type="date" id="endDate" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <a href="/user/<%= user._id %>/history/invoice" id="generateInvoiceBtn" class="btn btn-primary w-100"
+                    style="border-radius: 10px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        class="me-1">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Generate Statement
+                </a>
             </div>
 
             <div class="purchase-section">
@@ -292,6 +355,51 @@
                 const modal = new bootstrap.Modal(document.getElementById('editBillModal'));
                 modal.show();
             }
+
+            // Filtering Logic
+            const invoiceBtn = document.getElementById('generateInvoiceBtn');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const filterChips = document.querySelectorAll('.filter-chip');
+            const baseUrl = '/user/<%= user._id %>/history/invoice';
+
+            function updateLink() {
+                let params = new URLSearchParams();
+                const activeChip = document.querySelector('.filter-chip.active');
+
+                if (activeChip && activeChip.dataset.filter !== 'all') {
+                    params.append('filter', activeChip.dataset.filter);
+                } else {
+                    if (startDateInput.value) params.append('startDate', startDateInput.value);
+                    if (endDateInput.value) params.append('endDate', endDateInput.value);
+                }
+
+                const queryString = params.toString();
+                invoiceBtn.href = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+            }
+
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    filterChips.forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+
+                    if (chip.dataset.filter !== 'all') {
+                        startDateInput.value = '';
+                        endDateInput.value = '';
+                    }
+                    updateLink();
+                });
+            });
+
+            startDateInput.addEventListener('change', () => {
+                filterChips.forEach(c => c.classList.remove('active'));
+                updateLink();
+            });
+
+            endDateInput.addEventListener('change', () => {
+                filterChips.forEach(c => c.classList.remove('active'));
+                updateLink();
+            });
         </script>
 </body>
 
