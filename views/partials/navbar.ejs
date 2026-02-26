@@ -4,6 +4,7 @@
         <a href="/dashboard" class="<%= currentPage === 'home' ? 'active' : '' %>">Home</a>
         <a href="/add-user" class="<%= currentPage === 'addUser' ? 'active' : '' %> add-btn">Add User</a>
         <a href="/bills" class="<%= currentPage === 'bills' ? 'active' : '' %>">Bills</a>
+        <a href="/all-history" class="<%= currentPage === 'history' ? 'active' : '' %>">History</a>
         <!-- Install Button for Desktop -->
         <button id="installBtnDesktop" class="install-btn" style="display: none;">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -32,6 +33,12 @@
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
         </div>
+    </a>
+    <a href="/all-history" class="mobile-nav-item <%= currentPage === 'history' ? 'active' : '' %>">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>History</span>
     </a>
     <a href="/bills" class="mobile-nav-item <%= currentPage === 'bills' ? 'active' : '' %>">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">

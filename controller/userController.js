@@ -89,9 +89,19 @@ exports.getUserHistory = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: -1 });
-        res.render('userHistory', { user, bills, currentPage: 'home' });
+        res.render('userhistory', { user, bills, currentPage: 'home' });
     } catch (error) {
         res.status(500).send("Error loading purchase history");
+    }
+};
+
+exports.getAllHistory = async (req, res) => {
+    try {
+        const bills = await Bill.find().sort({ createdAt: -1 });
+        res.render('allhistory', { bills, currentPage: 'history' });
+    } catch (error) {
+        console.error("Error loading all history:", error);
+        res.status(500).send("Error loading all history");
     }
 };
 
