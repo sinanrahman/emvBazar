@@ -35,6 +35,11 @@ const billSchema = new mongoose.Schema({
     totalAmount: {
         type: Number,
         default: 0
+    },
+    type: {
+        type: String,
+        enum: ['purchase', 'payment'],
+        default: 'purchase'
     }
 }, {
     timestamps: true

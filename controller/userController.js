@@ -95,36 +95,32 @@ exports.getUserHistory = async (req, res) => {
     }
 };
 
-exports.getAllHistory = async (req, res) => {
-    try {
-        const bills = await Bill.find().sort({ createdAt: -1 });
-        res.render('allhistory', { bills, currentPage: 'history' });
-    } catch (error) {
-        console.error("Error loading all history:", error);
-        res.status(500).send("Error loading all history");
-    }
-};
-
 exports.addTransaction = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         const amount = parseFloat(req.body.amount);
+        const type = req.body.type || 'purchase';
         const customDate = req.body.date ? new Date(req.body.date) : new Date();
 
         if (!user || isNaN(amount) || amount <= 0) {
             return res.status(400).send("Invalid amount. Please enter a value greater than 0.");
         }
 
+        // If it's a payment, we store the unitPrice and amount as negative 
+        // to subtract it from the total outstanding balance.
+        const finalAmount = type === 'payment' ? -amount : amount;
+
         const bill = new Bill({
             username: user.username,
             phone: user.phone,
+            type: type,
             items: [{
-                item: 'Daily Purchase',
+                item: type === 'payment' ? 'Payment Received' : 'Daily Purchase',
                 quantity: 1,
-                unitPrice: amount,
-                amount: amount
+                unitPrice: finalAmount,
+                amount: finalAmount
             }],
-            createdAt: customDate // Override timestamp if provided
+            createdAt: customDate
         });
 
         await bill.save();
@@ -161,12 +157,15 @@ exports.deleteBill = async (req, res) => {
 
 exports.editBill = async (req, res) => {
     try {
-        const { amount } = req.body;
+        const { amount, type } = req.body;
         const bill = await Bill.findById(req.params.billId);
 
-        bill.items[0].unitPrice = amount;
-        bill.items[0].amount = amount;
-        bill.totalAmount = amount;
+        // Calculate final amount based on type
+        const finalAmount = (type || bill.type) === 'payment' ? -Math.abs(amount) : Math.abs(amount);
+
+        bill.items[0].unitPrice = finalAmount;
+        bill.items[0].amount = finalAmount;
+        bill.totalAmount = finalAmount;
 
         await bill.save();
         res.redirect(`/user/${req.params.userId}`);
