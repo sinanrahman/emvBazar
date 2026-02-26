@@ -95,6 +95,16 @@ exports.getUserHistory = async (req, res) => {
     }
 };
 
+exports.getHistoryInvoice = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: 1 }); // Sort by date ascending for invoice
+        res.render('historyinvoice', { user, bills, currentPage: 'home' });
+    } catch (error) {
+        res.status(500).send("Error generating history invoice");
+    }
+};
+
 exports.addTransaction = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
