@@ -8,8 +8,8 @@
     <title>Edit User | EMV Bazar</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/favicon.ico">
-<meta name="theme-color" content="#0d6efd">
-<link rel="apple-touch-icon" href="/image/icon-192x192.png">
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="apple-touch-icon" href="/image/icon-192x192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
@@ -125,7 +125,7 @@
 <body>
     <%- include('partials/navbar') %>
 
-        <a href="javascript:history.back()" class="bottom-back-btn">
+        <a href="/user/<%= user._id %>" class="bottom-back-btn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -182,19 +182,19 @@
             </form>
         </div>
         <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        console.log("Service Worker registered:", registration.scope);
-      })
-      .catch((err) => {
-        console.log("Service Worker registration failed:", err);
-      });
-  });
-}
-</script>
+            if ("serviceWorker" in navigator) {
+                window.addEventListener("load", () => {
+                    navigator.serviceWorker
+                        .register("/sw.js")
+                        .then((registration) => {
+                            console.log("Service Worker registered:", registration.scope);
+                        })
+                        .catch((err) => {
+                            console.log("Service Worker registration failed:", err);
+                        });
+                });
+            }
+        </script>
 </body>
 
 </html>

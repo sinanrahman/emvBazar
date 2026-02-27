@@ -128,7 +128,6 @@
     }
 
     .grand-total {
-      margin-top: 2rem;
       text-align: right;
       padding-top: 1rem;
       border-top: 2px solid var(--border);
@@ -138,6 +137,43 @@
       font-size: 1.5rem;
       font-weight: 800;
       color: var(--primary-orange);
+    }
+
+    .table-scroll-area {
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: auto;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    /* Sticky header */
+    #invoiceTable thead th {
+      position: sticky;
+      top: 0;
+      background-color: #f8fafc;
+      z-index: 10;
+      border-top: none;
+    }
+
+    /* Custom Scrollbar */
+    .table-scroll-area::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .table-scroll-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .table-scroll-area::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .table-scroll-area::-webkit-scrollbar-thumb:hover {
+      background: #cbd5e1;
     }
 
     /* Mobile Fixes for Overflow */
@@ -236,203 +272,201 @@
 <body>
   <%- include('partials/navbar') %>
 
+    <div class="invoice-card">
+      <div class="header-logo">EMV BAZAR</div>
 
-
-  <div class="invoice-card">
-    <div class="header-logo">EMV BAZAR</div>
-
-    <div class="invoice-details row">
-      <div class="col-md-6 mb-3">
-        <label class="form-label small text-muted fw-bold">BILL TO</label>
-        <select class="form-select" id="customerSelect" onchange="updateCustomerInfo()">
-          <option value="">Select Customer</option>
-          <% users.forEach(user=> { %>
-          <option value="<%= user.username %>" data-phone="<%= user.phone %>">
-            <%= user.username %> (<%= user.phone %>)
-          </option>
-          <% }); %>
-        </select>
-        <input type="text" class="form-control mt-2" id="customerName" placeholder="Customer Name">
-      </div>
-      <div class="col-md-6 mb-3 text-md-end">
-        <div class="mb-2">
-          <label class="small text-muted fw-bold">DATE</label>
-          <input type="date" class="form-control d-inline-block w-auto ms-2" id="billDate">
+      <div class="invoice-details row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label small text-muted fw-bold">BILL TO</label>
+          <select class="form-select" id="customerSelect" onchange="updateCustomerInfo()">
+            <option value="">Select Customer</option>
+            <% users.forEach(user=> { %>
+              <option value="<%= user.username %>" data-phone="<%= user.phone %>">
+                <%= user.username %> (<%= user.phone %>)
+              </option>
+              <% }); %>
+          </select>
+          <input type="text" class="form-control mt-2" id="customerName" placeholder="Customer Name">
+        </div>
+        <div class="col-md-6 mb-3 text-md-end">
+          <div class="mb-2">
+            <label class="small text-muted fw-bold">DATE</label>
+            <input type="date" class="form-control d-inline-block w-auto ms-2" id="billDate">
+          </div>
         </div>
       </div>
+
+      <div class="table-scroll-area">
+        <table id="invoiceTable">
+          <thead>
+            <tr>
+              <th style="min-width: 150px;">Items</th>
+              <th class="text-center">Qty</th>
+              <th class="text-center">Price(₹)</th>
+              <th class="text-end">Total(₹)</th>
+              <th class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="itemBody">
+            <tr class="item-row">
+              <td><input type="text" class="item-name" placeholder="Enter item name"></td>
+              <td><input type="number" class="qty-input" value="1" oninput="calculateRow(this)"></td>
+              <td><input type="number" class="price-input" placeholder="0" oninput="calculateRow(this)">
+              </td>
+              <td class="amount-td text-end">0.00</td>
+              <td class="no-print text-center"><button class="remove-btn" onclick="removeRow(this)">×</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button class="add-row-btn no-print" onclick="addRow()">+ Add New Item</button>
+
+      <div class="grand-total">
+        <p class="text-muted fw-bold mb-1" style="font-size: 0.9rem;">TOTAL AMOUNT</p>
+        <span>₹<span id="allTotal">0.00</span></span>
+      </div>
+
+      <div class="no-print-btns mt-4 px-3">
+        <button class="btn btn-success w-100 py-3 fw-bold" id="generateBillBtn" onclick="generateBill()">GENERATE &
+          VIEW INVOICE</button>
+      </div>
     </div>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((registration) => {
+              console.log("Service Worker registered:", registration.scope);
+            })
+            .catch((err) => {
+              console.log("Service Worker registration failed:", err);
+            });
+        });
+      }
+      // Set default date to today
+      document.getElementById('billDate').valueAsDate = new Date();
 
-    <div class="table-responsive" style="overflow-x: auto;">
-      <table id="invoiceTable">
-        <thead>
-          <tr>
-            <th style="min-width: 150px;">Items</th>
-            <th class="text-center">Qty</th>
-            <th class="text-center">Price(₹)</th>
-            <th class="text-end">Total(₹)</th>
-            <th class="no-print"></th>
-          </tr>
-        </thead>
-        <tbody id="itemBody">
-          <tr class="item-row">
-            <td><input type="text" class="item-name" placeholder="Enter item name"></td>
-            <td><input type="number" class="qty-input" value="1" oninput="calculateRow(this)"></td>
-            <td><input type="number" class="price-input" placeholder="0" oninput="calculateRow(this)">
-            </td>
-            <td class="amount-td text-end">0.00</td>
-            <td class="no-print text-center"><button class="remove-btn" onclick="removeRow(this)">×</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <button class="add-row-btn no-print" onclick="addRow()">+ Add New Item</button>
-
-    <div class="grand-total">
-      <p class="text-muted fw-bold mb-1" style="font-size: 0.9rem;">TOTAL AMOUNT</p>
-      <span>₹<span id="allTotal">0.00</span></span>
-    </div>
-
-    <div class="no-print-btns mt-4 px-3">
-      <button class="btn btn-success w-100 py-3 fw-bold" id="generateBillBtn" onclick="generateBill()">GENERATE &
-        VIEW INVOICE</button>
-    </div>
-  </div>
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then((registration) => {
-            console.log("Service Worker registered:", registration.scope);
-          })
-          .catch((err) => {
-            console.log("Service Worker registration failed:", err);
-          });
-      });
-    }
-    // Set default date to today
-    document.getElementById('billDate').valueAsDate = new Date();
-
-    function addRow() {
-      const tbody = document.getElementById('itemBody');
-      const newRow = document.createElement('tr');
-      newRow.className = 'item-row';
-      newRow.innerHTML = `
+      function addRow() {
+        const tbody = document.getElementById('itemBody');
+        const newRow = document.createElement('tr');
+        newRow.className = 'item-row';
+        newRow.innerHTML = `
                 <td><input type="text" class="item-name" placeholder="Enter item name"></td>
                 <td><input type="number" class="qty-input" value="1" oninput="calculateRow(this)"></td>
                 <td><input type="number" class="price-input" placeholder="0" oninput="calculateRow(this)"></td>
                 <td class="amount-td text-end">0.00</td>
                 <td class="no-print text-center"><button class="remove-btn" onclick="removeRow(this)">×</button></td>
             `;
-      tbody.appendChild(newRow);
-    }
-
-    function removeRow(btn) {
-      const row = btn.parentNode.parentNode;
-      if (document.querySelectorAll('.item-row').length > 1) {
-        row.remove();
-        calculateGrandTotal();
-      }
-    }
-
-    function calculateRow(input) {
-      const row = input.parentNode.parentNode;
-      const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
-      const price = parseFloat(row.querySelector('.price-input').value) || 0;
-      const amountTd = row.querySelector('.amount-td');
-
-      const total = qty * price;
-      amountTd.innerText = total.toFixed(2);
-      calculateGrandTotal();
-    }
-
-    function calculateGrandTotal() {
-      let total = 0;
-      document.querySelectorAll('.amount-td').forEach(td => {
-        total += parseFloat(td.innerText) || 0;
-      });
-      document.getElementById('allTotal').innerText = total.toFixed(2);
-    }
-
-    function updateCustomerInfo() {
-      const select = document.getElementById('customerSelect');
-      const nameInput = document.getElementById('customerName');
-      if (select.value) {
-        nameInput.value = select.value;
-      }
-    }
-
-    async function generateBill() {
-      const genBtn = document.getElementById('generateBillBtn');
-      const customerName = document.getElementById('customerName').value;
-      const select = document.getElementById('customerSelect');
-      const phone = select.options[select.selectedIndex]?.dataset.phone || "";
-      const date = document.getElementById('billDate').value;
-      const items = [];
-
-      if (!customerName) {
-        alert("Please enter a customer name.");
-        return;
+        tbody.appendChild(newRow);
       }
 
-      document.querySelectorAll('.item-row').forEach(row => {
-        const itemName = row.querySelector('.item-name').value;
+      function removeRow(btn) {
+        const row = btn.parentNode.parentNode;
+        if (document.querySelectorAll('.item-row').length > 1) {
+          row.remove();
+          calculateGrandTotal();
+        }
+      }
+
+      function calculateRow(input) {
+        const row = input.parentNode.parentNode;
         const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
         const price = parseFloat(row.querySelector('.price-input').value) || 0;
-        const amount = parseFloat(row.querySelector('.amount-td').innerText) || 0;
+        const amountTd = row.querySelector('.amount-td');
 
-        if (itemName && amount > 0) {
-          items.push({
-            item: itemName,
-            quantity: qty,
-            unitPrice: price,
-            amount: amount
-          });
-        }
-      });
-
-      if (items.length === 0) {
-        alert("Please add at least one item.");
-        return;
+        const total = qty * price;
+        amountTd.innerText = total.toFixed(2);
+        calculateGrandTotal();
       }
 
-      const totalAmount = parseFloat(document.getElementById('allTotal').innerText);
+      function calculateGrandTotal() {
+        let total = 0;
+        document.querySelectorAll('.amount-td').forEach(td => {
+          total += parseFloat(td.innerText) || 0;
+        });
+        document.getElementById('allTotal').innerText = total.toFixed(2);
+      }
 
-      genBtn.disabled = true;
-      genBtn.innerText = "GENERATING INVOICE...";
+      function updateCustomerInfo() {
+        const select = document.getElementById('customerSelect');
+        const nameInput = document.getElementById('customerName');
+        if (select.value) {
+          nameInput.value = select.value;
+        }
+      }
 
-      try {
-        const response = await fetch('/api/save-bill', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            username: customerName,
-            phone,
-            date,
-            items,
-            totalAmount
-          })
+      async function generateBill() {
+        const genBtn = document.getElementById('generateBillBtn');
+        const customerName = document.getElementById('customerName').value;
+        const select = document.getElementById('customerSelect');
+        const phone = select.options[select.selectedIndex]?.dataset.phone || "";
+        const date = document.getElementById('billDate').value;
+        const items = [];
+
+        if (!customerName) {
+          alert("Please enter a customer name.");
+          return;
+        }
+
+        document.querySelectorAll('.item-row').forEach(row => {
+          const itemName = row.querySelector('.item-name').value;
+          const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+          const price = parseFloat(row.querySelector('.price-input').value) || 0;
+          const amount = parseFloat(row.querySelector('.amount-td').innerText) || 0;
+
+          if (itemName && amount > 0) {
+            items.push({
+              item: itemName,
+              quantity: qty,
+              unitPrice: price,
+              amount: amount
+            });
+          }
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          window.location.href = `/view-bill/${data.billId}`;
-        } else {
-          const err = await response.text();
-          alert("Generation Error: " + err);
+        if (items.length === 0) {
+          alert("Please add at least one item.");
+          return;
         }
-      } catch (error) {
-        alert("Network error: " + error.message);
-      } finally {
-        genBtn.disabled = false;
-        genBtn.innerText = "GENERATE & VIEW INVOICE";
+
+        const totalAmount = parseFloat(document.getElementById('allTotal').innerText);
+
+        genBtn.disabled = true;
+        genBtn.innerText = "GENERATING INVOICE...";
+
+        try {
+          const response = await fetch('/api/save-bill', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: customerName,
+              phone,
+              date,
+              items,
+              totalAmount
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            window.location.href = `/view-bill/${data.billId}`;
+          } else {
+            const err = await response.text();
+            alert("Generation Error: " + err);
+          }
+        } catch (error) {
+          alert("Network error: " + error.message);
+        } finally {
+          genBtn.disabled = false;
+          genBtn.innerText = "GENERATE & VIEW INVOICE";
+        }
       }
-    }
-  </script>
+    </script>
 </body>
 
 </html>

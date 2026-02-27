@@ -154,79 +154,84 @@
 <body>
   <%- include('partials/navbar') %>
 
-  <div class="container">
-    <h2>Add New User</h2>
+    <div class="container">
+      <h2>Add New User</h2>
 
-    <% if (success) { %>
-      <div class="alert alert-success"><%= success %></div>
-    <% } %>
+      <% if (success) { %>
+        <div class="alert alert-success">
+          <%= success %>
+        </div>
+        <% } %>
 
-    <% if (error) { %>
-      <div class="alert alert-error"><%= error %></div>
-    <% } %>
+          <% if (error) { %>
+            <div class="alert alert-error">
+              <%= error %>
+            </div>
+            <% } %>
 
-    <form action="/add-user" method="POST">
-      <div class="form-group">
-        <label for="username">Customer Name</label>
-        <input type="text" id="username" name="username" required placeholder="Ex: John Doe">
-      </div>
+              <form action="/add-user" method="POST">
+                <div class="form-group">
+                  <label for="username">Customer Name</label>
+                  <input type="text" id="username" name="username" required placeholder="Ex: John Doe">
+                </div>
 
-      <div class="form-group">
-        <label for="phone">Phone Number</label>
-        <input type="text" id="phone" name="phone" required placeholder="Ex: +91 9876543210">
-      </div>
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <input type="text" id="phone" name="phone" required placeholder="Ex: +91 9876543210">
+                </div>
 
-      <div class="form-group">
-        <label for="type">User Type</label>
-        <select id="type" name="type" required>
-          <option value="monthly">Monthly</option>
-          <option value="fixed">Fixed</option>
-          <option value="uncertain">Uncertain</option>
-        </select>
-      </div>
+                <div class="form-group">
+                  <label for="type">User Type</label>
+                  <select id="type" name="type" required>
+                    <option value="monthly">Monthly</option>
+                    <option value="fixed">Fixed</option>
+                    <option value="uncertain">Uncertain</option>
+                  </select>
+                </div>
 
-      <div class="form-group">
-        <label for="status">Debt Status</label>
-        <select id="status" name="status" required>
-          <option value="unpaid">Unpaid</option>
-          <option value="paid">Paid</option>
-        </select>
-      </div>
+                <div class="form-group">
+                  <label for="status">Debt Status</label>
+                  <select id="status" name="status" required>
+                    <option value="unpaid">Unpaid</option>
+                    <option value="paid">Paid</option>
+                  </select>
+                </div>
 
-      <div class="form-group">
-        <label for="dueDate">Due Date (Optional)</label>
-        <input type="date" id="dueDate" name="dueDate">
-      </div>
+                <div class="form-group">
+                  <label for="dueDate">Due Date (Optional)</label>
+                  <input type="date" id="dueDate" name="dueDate">
+                </div>
 
-      <div class="form-group">
-        <label for="nextReminderDate">Next Reminder Date (Optional)</label>
-        <input type="date" id="nextReminderDate" name="nextReminderDate">
-      </div>
+                <div class="form-group">
+                  <label for="nextReminderDate">Next Reminder Date (Optional)</label>
+                  <input type="date" id="nextReminderDate" name="nextReminderDate">
+                </div>
 
-      <div class="form-group">
-        <label for="reminderIntervalDays">Reminder Interval (Days)</label>
-        <input type="number" id="reminderIntervalDays" name="reminderIntervalDays" min="1" placeholder="Default: auto">
-      </div>
+                <div class="form-group">
+                  <label for="reminderIntervalDays">Reminder Interval (Days)</label>
+                  <input type="number" id="reminderIntervalDays" name="reminderIntervalDays" min="1"
+                    placeholder="Default: auto">
+                </div>
 
-      <div class="form-group">
-        <label for="reminderActive">Reminder Active?</label>
-        <select id="reminderActive" name="reminderActive">
-          <option value="true" selected>Yes</option>
-          <option value="false">No</option>
-        </select>
-      </div>
+                <div class="form-group">
+                  <label for="reminderActive">Reminder Active?</label>
+                  <select id="reminderActive" name="reminderActive">
+                    <option value="true" selected>Yes</option>
+                    <option value="false">No</option>
+                  </select>
+                </div>
 
-      <div class="form-group">
-        <label for="billNeeded">Bill Needed?</label>
-        <select id="billNeeded" name="billNeeded">
-          <option value="false" selected>No (Default)</option>
-          <option value="true">Yes</option>
-        </select>
-      </div>
+                <div class="form-group">
+                  <label for="billNeeded">Bill Needed?</label>
+                  <select id="billNeeded" name="billNeeded">
+                    <option value="false" selected>No (Default)</option>
+                    <option value="true">Yes</option>
+                  </select>
+                </div>
 
-      <button type="submit" class="btn-submit">Add User</button>
-    </form>
-  </div>
+                <button type="submit" class="btn-submit">Add User</button>
+              </form>
+    </div>
 </body>
 
 </html>
