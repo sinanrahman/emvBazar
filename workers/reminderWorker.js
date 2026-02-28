@@ -8,26 +8,19 @@ const User = require('../model/User');
 
 mongoose.connect(process.env.DB_URL);
 
-async function sendWhatsAppMessage(phone, name, dueDate) {
+async function sendWhatsAppMessage(phone) {
   try {
     await axios.post(
       `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
-        to: "91" + phone, // ✅ No +
+        to: "91" + phone, // no +
         type: "template",
         template: {
-          name: "monthly_debt_reminder",
-          language: { code: "en" },
-          components: [
-            {
-              type: "body",
-              parameters: [
-                { type: "text", text: name },
-                { type: "text", text: dueDate }
-              ]
-            }
-          ]
+          name: "hello_world",
+          language: {
+            code: "en_US"
+          }
         }
       },
       {
@@ -44,31 +37,26 @@ async function sendWhatsAppMessage(phone, name, dueDate) {
     throw error;
   }
 }
-
 const worker = new Worker(
   'reminderQueue',
   async (job) => {
     console.log("🔥 Processing job:", job.id);
 
-    const { username, phone, dueDate } = job.data;
+    const { phone } = job.data;
 
     const user = await User.findOne({ phone });
 
-    // ✅ Stop if user not found or already paid
     if (!user || user.status === "paid" || !user.reminderActive) {
       console.log("⚠️ Reminder skipped (paid or inactive)");
       return;
     }
 
-    const formattedDate = new Date(dueDate).toLocaleDateString();
+    await sendWhatsAppMessage(phone);
 
-    await sendWhatsAppMessage(phone, username, formattedDate);
-
-    console.log(`🎉 Reminder sent to ${username}`);
+    console.log(`🎉 Hello World message sent`);
   },
   { connection }
 );
-
 worker.on('completed', (job) => {
   console.log(`🎉 Job ${job.id} completed`);
 });
