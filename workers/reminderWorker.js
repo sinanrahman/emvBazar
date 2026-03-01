@@ -11,10 +11,10 @@ mongoose.connect(process.env.DB_URL);
 async function sendWhatsAppMessage(phone) {
   try {
     await axios.post(
-      `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`,
+      `https://graph.facebook.com/v25.0/${process.env.PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
-        to: "91" + phone, // no +
+        to: "91" + phone,
         type: "template",
         template: {
           name: "hello_world",
