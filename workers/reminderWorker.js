@@ -10,38 +10,34 @@ mongoose.connect(process.env.DB_URL);
 
 async function sendWhatsAppMessage(phone, name) {
   try {
-    await axios.post(
-      `https://graph.facebook.com/v25.0/${process.env.PHONE_NUMBER_ID}/messages`,
-      {
-        messaging_product: "whatsapp",
-        to: "91" + phone,
-        type: "template",
-        template: {
-          name: "pdf",
-          language: {
-            code: "en"
-          },
-          components: [
-            {
-              type: "body",
-              parameters: [
-                {
-                  type: "text",
-                  text: name
-                }
-              ]
-            }
+    const response = await axios.post(
+  `https://graph.facebook.com/v25.0/${process.env.PHONE_NUMBER_ID}/messages`,
+  {
+    messaging_product: "whatsapp",
+    to: "91" + phone,
+    type: "template",
+    template: {
+      name: "emv_pdf_notification",
+      language: { code: "en" },
+      components: [
+        {
+          type: "body",
+          parameters: [
+            { type: "text", text: name }
           ]
         }
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
+      ]
+    }
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
 
+console.log("META RESPONSE:", response.data);
     console.log(`✅ WhatsApp sent to ${phone}`);
   } catch (error) {
     console.error("❌ WhatsApp Error:", error.response?.data || error.message);
