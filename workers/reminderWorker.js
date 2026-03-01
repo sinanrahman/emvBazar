@@ -17,7 +17,7 @@ async function sendWhatsAppMessage(phone, name) {
     to: "91" + phone,
     type: "template",
     template: {
-      name: "emv_pdf_notification",
+      name: "pdf",
       language: { code: "en" },
       components: [
         {
