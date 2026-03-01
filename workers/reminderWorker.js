@@ -8,7 +8,7 @@ const User = require('../model/User');
 
 mongoose.connect(process.env.DB_URL);
 
-async function sendWhatsAppMessage(phone) {
+async function sendWhatsAppMessage(phone, name) {
   try {
     await axios.post(
       `https://graph.facebook.com/v25.0/${process.env.PHONE_NUMBER_ID}/messages`,
@@ -17,10 +17,21 @@ async function sendWhatsAppMessage(phone) {
         to: "91" + phone,
         type: "template",
         template: {
-          name: "hello_world",
+          name: "pdf",
           language: {
-            code: "en_US"
-          }
+            code: "en"
+          },
+          components: [
+            {
+              type: "body",
+              parameters: [
+                {
+                  type: "text",
+                  text: name
+                }
+              ]
+            }
+          ]
         }
       },
       {
@@ -37,12 +48,13 @@ async function sendWhatsAppMessage(phone) {
     throw error;
   }
 }
+
 const worker = new Worker(
   'reminderQueue',
   async (job) => {
     console.log("🔥 Processing job:", job.id);
 
-    const { phone } = job.data;
+    const { phone, username } = job.data;
 
     const user = await User.findOne({ phone });
 
@@ -51,12 +63,13 @@ const worker = new Worker(
       return;
     }
 
-    await sendWhatsAppMessage(phone);
+    await sendWhatsAppMessage(phone, username);
 
-    console.log(`🎉 Hello World message sent`);
+    console.log(`🎉 PDF reminder sent to ${username}`);
   },
   { connection }
 );
+
 worker.on('completed', (job) => {
   console.log(`🎉 Job ${job.id} completed`);
 });
