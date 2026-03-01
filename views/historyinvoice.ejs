@@ -159,6 +159,60 @@
                 bottom: 85px;
             }
         }
+
+        .payment-qr-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px dashed #e2e8f0;
+        }
+
+        .qr-scanner-img {
+            max-width: 180px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            background: #fff;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .payment-details {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .upi-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .upi-value {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .gpay-info {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .gpay-icon {
+            color: #4285F4;
+            margin-right: 6px;
+            font-weight: 800;
+        }
     </style>
 </head>
 
@@ -242,6 +296,19 @@
         <div class="grand-total">
             <p class="text-muted fw-bold mb-1">TOTAL OUTSTANDING BALANCE</p>
             <span>₹ <%= bills.reduce((acc, b)=> acc + b.totalAmount, 0).toFixed(2) %></span>
+        </div>
+
+        <!-- Payment QR Section -->
+        <div class="payment-qr-section">
+            <img src="/image/scanner.jpeg" alt="Payment QR Scanner" class="qr-scanner-img">
+            <div class="payment-details">
+                <span class="upi-label">UPI ID</span>
+                <span class="upi-value">ka6987868-1@okaxis</span>
+                <div class="gpay-info">
+                    <span class="gpay-icon">GPay:</span>
+                    <span>9526723000</span>
+                </div>
+            </div>
         </div>
     </div>
 </body>
