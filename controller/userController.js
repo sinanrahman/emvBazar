@@ -1,6 +1,8 @@
 const User = require('../model/User');
 const Bill = require('../model/Bill');
 const { scheduleOneMinuteReminder } = require('./messageController');
+const billQueue = require('../queues/billQueue');
+const { generatePDFBuffer } = require('../utils/pdfGenerator');
 
 exports.getHomePage = (req, res) => {
     res.render('home');
@@ -235,8 +237,19 @@ exports.saveBillData = async (req, res) => {
         });
 
         const savedBill = await newBill.save();
+
+        // Add to queue for WhatsApp delivery
+        // We pass the phone, the saved bill ID, and the admin's token for auth
+        // Use an environment variable for APP_URL (e.g., https://emv-bazar.onrender.com)
+        await billQueue.add('sendBill', {
+            billId: savedBill._id.toString(),
+            phone: phone,
+            adminAuth: req.cookies.auth, // Match the cookie name 'auth'
+            appUrl: process.env.APP_URL || `${req.protocol}://${req.get('host')}`
+        });
+
         res.status(200).json({
-            message: "Bill saved successfully",
+            message: "Bill saved successfully and queued for WhatsApp delivery",
             billId: savedBill._id
         });
     } catch (error) {
@@ -257,57 +270,21 @@ exports.getViewBill = async (req, res) => {
 
 exports.downloadBillPDF = async (req, res) => {
     try {
-        const puppeteer = require('puppeteer-core');
         const billId = req.params.id;
-
-        // Find Chrome executable path (common Windows paths)
-        const chromePaths = [
-            'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-            'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-        ];
-        const fs = require('fs');
-        const executablePath = chromePaths.find(path => fs.existsSync(path));
-
-        if (!executablePath) {
-            return res.status(500).send("Chrome not found on server for PDF generation. Please use 'Print' manually.");
-        }
-
-        const browser = await puppeteer.launch({
-            executablePath: executablePath,
-            args: ['--no-sandbox']
-        });
-        const page = await browser.newPage();
-
-        // Use full URL to the view page
         const protocol = req.protocol;
         const host = req.get('host');
         const url = `${protocol}://${host}/view-bill/${billId}`;
 
-        // Set cookie for auth since it's an authenticated route
+        // Get authentication cookies from the request
         const cookies = req.cookies;
-        if (cookies.token) {
-            await page.setCookie({
-                name: 'token',
-                value: cookies.token,
-                domain: host.split(':')[0],
-                path: '/'
-            });
-        }
 
-        await page.goto(url, { waitUntil: 'networkidle0' });
-
-        const pdf = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' }
-        });
-
-        await browser.close();
+        const pdfBuffer = await generatePDFBuffer(url, cookies);
 
         res.contentType("application/pdf");
-        res.send(pdf);
+        res.setHeader("Content-Disposition", `attachment; filename=Invoice_${billId}.pdf`);
+        res.send(pdfBuffer);
     } catch (error) {
-        console.error("PDF Error:", error);
+        console.error("PDF Download Error:", error);
         res.status(500).send("Error generating PDF: " + error.message);
     }
 };
