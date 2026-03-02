@@ -75,9 +75,9 @@ exports.sendDocumentMessage = async (to, mediaId, fileName = 'Invoice.pdf') => {
 };
 
 /**
- * Sends a statement template in Malayalam with a PDF header.
+ * Sends a statement template in Malayalam without a header.
  */
-exports.sendStatementTemplate = async (to, name, dueAmount) => {
+exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
     try {
         const cleanPhone = to.replace(/\D/g, '');
 
@@ -115,4 +115,5 @@ exports.sendStatementTemplate = async (to, name, dueAmount) => {
         throw new Error('Failed to send statement template via WhatsApp');
     }
 };
+
 
