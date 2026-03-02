@@ -77,7 +77,7 @@ exports.sendDocumentMessage = async (to, mediaId, fileName = 'Invoice.pdf') => {
 /**
  * Sends a statement template in Malayalam with a PDF header.
  */
-exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
+exports.sendStatementTemplate = async (to, name, dueAmount) => {
     try {
         const cleanPhone = to.replace(/\D/g, '');
 
@@ -88,22 +88,9 @@ exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
                 to: cleanPhone,
                 type: "template",
                 template: {
-                    name: "emv_due", // Corrected template name from Meta Dashboard
+                    name: "emv_due",
                     language: { code: "ml" },
                     components: [
-
-                        {
-                            type: "header",
-                            parameters: [
-                                {
-                                    type: "document",
-                                    document: {
-                                        id: mediaId,
-                                        filename: "Statement.pdf"
-                                    }
-                                }
-                            ]
-                        },
                         {
                             type: "body",
                             parameters: [
