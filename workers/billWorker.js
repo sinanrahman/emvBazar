@@ -56,13 +56,16 @@ const billWorker = new Worker('billQueue', async (job) => {
             // 2. Upload to WhatsApp
             const mediaId = await uploadPDFToWhatsApp(pdfBuffer, `Statement_${user.username}.pdf`);
 
-            // 3. Send Template Message
+            // 3. Send Template Message (Sent FIRST)
             await sendStatementTemplate(phone, mediaId, user.username, dueAmount);
 
-            // 4. Send PDF Document Message (Immediately after template)
+            // Wait 2 seconds to ensure WhatsApp delivers the text before the document
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // 4. Send PDF Document Message (Sent SECOND)
             await sendDocumentMessage(phone, mediaId, `Statement_${user.username}.pdf`);
 
-            console.log(`Successfully sent Statement & Template to ${user.username} (${phone})`);
+            console.log(`Successfully sent Template then Statement to ${user.username} (${phone})`);
         }
 
         return { success: true };
