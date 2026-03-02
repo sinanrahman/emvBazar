@@ -73,3 +73,58 @@ exports.sendDocumentMessage = async (to, mediaId, fileName = 'Invoice.pdf') => {
         throw new Error('Failed to send document message via WhatsApp');
     }
 };
+
+/**
+ * Sends a statement template in Malayalam with a PDF header.
+ */
+exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
+    try {
+        const cleanPhone = to.replace(/\D/g, '');
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
+            {
+                messaging_product: "whatsapp",
+                to: cleanPhone,
+                type: "template",
+                template: {
+                    name: "purchase_statement", // IMPORTANT: Template must exist in Meta Dashboard
+                    language: { code: "ml" },
+                    components: [
+                        {
+                            type: "header",
+                            parameters: [
+                                {
+                                    type: "document",
+                                    document: {
+                                        id: mediaId,
+                                        filename: "Statement.pdf"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            type: "body",
+                            parameters: [
+                                { type: "text", text: name },
+                                { type: "text", text: `₹${dueAmount}` }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('WhatsApp Statement Template Error:', error.response?.data || error.message);
+        throw new Error('Failed to send statement template via WhatsApp');
+    }
+};
+

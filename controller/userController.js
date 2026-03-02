@@ -111,6 +111,33 @@ exports.getHistoryInvoice = async (req, res) => {
     }
 };
 
+exports.sendHistoryWhatsApp = async (req, res) => {
+    try {
+        const { startDate, endDate, filter } = req.query;
+        const user = await User.findById(req.params.id);
+
+        // Calculate due amount for the message
+        const allBills = await Bill.find({ phone: user.phone });
+        const dueAmount = allBills.reduce((acc, b) => acc + b.totalAmount, 0);
+
+        // Add to queue
+        await billQueue.add('sendStatement', {
+            userId: user._id.toString(),
+            phone: user.phone,
+            dueAmount: dueAmount,
+            adminAuth: req.cookies.auth,
+            appUrl: process.env.APP_URL || `${req.protocol}://${req.get('host')}`,
+            filterParams: { startDate, endDate, filter } // Pass filters to generate the same PDF
+        });
+
+        res.redirect(`/user/${user._id}/history?success=queued`);
+    } catch (error) {
+        console.error("Send Statement Error:", error);
+        res.status(500).send("Error queuing statement delivery");
+    }
+};
+
+
 exports.addTransaction = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);

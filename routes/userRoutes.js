@@ -9,6 +9,8 @@ router.get('/users/:type', authMiddleware, userController.getByType);
 router.get('/user/:id', authMiddleware, userController.getUserDetails);
 router.get('/user/:id/history', authMiddleware, userController.getUserHistory);
 router.get('/user/:id/history/invoice', authMiddleware, userController.getHistoryInvoice);
+router.get('/user/:id/history/send-whatsapp', authMiddleware, userController.sendHistoryWhatsApp);
+
 router.post('/user/:id/transaction', authMiddleware, userController.addTransaction);
 router.post('/user/:userId/bill/:billId/delete', authMiddleware, userController.deleteBill);
 router.post('/user/:userId/bill/:billId/edit', authMiddleware, userController.editBill);
