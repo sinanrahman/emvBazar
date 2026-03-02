@@ -58,7 +58,11 @@ const billWorker = new Worker('billQueue', async (job) => {
 
             // 3. Send Template Message
             await sendStatementTemplate(phone, mediaId, user.username, dueAmount);
-            console.log(`Successfully sent Statement to ${user.username} (${phone})`);
+
+            // 4. Send PDF Document Message (Immediately after template)
+            await sendDocumentMessage(phone, mediaId, `Statement_${user.username}.pdf`);
+
+            console.log(`Successfully sent Statement & Template to ${user.username} (${phone})`);
         }
 
         return { success: true };
@@ -67,6 +71,7 @@ const billWorker = new Worker('billQueue', async (job) => {
         throw error;
     }
 }, {
+
     connection,
     concurrency: 2
 });
