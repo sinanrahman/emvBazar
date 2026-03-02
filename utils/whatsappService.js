@@ -1,7 +1,7 @@
 const axios = require('axios');
 const FormData = require('form-data');
 
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+const ACCESS_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERSION = 'v25.0'; // Updated to match reminderWorker
 

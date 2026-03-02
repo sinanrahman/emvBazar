@@ -3,5 +3,5 @@
 set -o errexit
 
 npm install
-# Download the chromium browser for puppeteer
-npx puppeteer install
+# Download the chromium browser for puppeteer explicitly
+npx puppeteer browsers install chrome
