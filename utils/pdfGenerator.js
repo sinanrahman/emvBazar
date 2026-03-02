@@ -16,19 +16,12 @@ exports.generatePDFBuffer = async (url, cookies = {}) => {
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
-                '--single-process',
-                '--disable-gpu'
+                '--disable-gpu',
+                '--font-render-hinting=none'
             ],
-            headless: 'new'
+            headless: 'new',
+            // Render environment: puppeteer will find the browser in the cache dir we set
         };
-
-        // If PUPPETEER_EXECUTABLE_PATH is set in environment (highly recommended for Render)
-        if (process.env.PUPPETEER_EXECUTABLE_PATH) {
-            options.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-        }
 
         browser = await puppeteer.launch(options);
         const page = await browser.newPage();
