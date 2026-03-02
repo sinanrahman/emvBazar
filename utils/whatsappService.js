@@ -88,9 +88,10 @@ exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
                 to: cleanPhone,
                 type: "template",
                 template: {
-                    name: "purchase_statement", // IMPORTANT: Template must exist in Meta Dashboard
+                    name: "emv_due", // Corrected template name from Meta Dashboard
                     language: { code: "ml" },
                     components: [
+
                         {
                             type: "header",
                             parameters: [
