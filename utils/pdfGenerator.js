@@ -55,8 +55,10 @@ exports.generatePDFBuffer = async (url, cookies = {}) => {
             }
         });
 
-        return pdfBuffer;
+        // Puppeteer 22+ returns Uint8Array, convert to Buffer for compatibility
+        return Buffer.from(pdfBuffer);
     } catch (error) {
+
         console.error('PDF Generation Error:', error);
         throw error;
     } finally {
