@@ -3,66 +3,66 @@ const FormData = require('form-data');
 
 const ACCESS_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
-const VERSION = 'v25.0'; // Updated to match reminderWorker
+const VERSION = 'v19.0';
 
 /**
- * Uploads a PDF buffer to WhatsApp Media API.
- * @param {Buffer} pdfBuffer - The PDF file as a buffer.
- * @param {string} fileName - Name of the file.
- * @returns {Promise<string>} - The media ID.
+ * Uploads a PDF buffer to WhatsApp Media API using form-data library.
  */
 exports.uploadPDFToWhatsApp = async (pdfBuffer, fileName = 'invoice.pdf') => {
     try {
-        const formData = new FormData();
-        formData.append('messaging_product', 'whatsapp');
-        formData.append('file', pdfBuffer, {
+        if (!Buffer.isBuffer(pdfBuffer)) {
+            throw new Error("PDF is not a Buffer");
+        }
+
+        const form = new FormData();
+        form.append("messaging_product", "whatsapp");
+        form.append("file", pdfBuffer, {
             filename: fileName,
-            contentType: 'application/pdf',
+            contentType: "application/pdf",
         });
-        formData.append('type', 'application/pdf');
 
         const response = await axios.post(
             `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/media`,
-            formData,
+            form,
             {
                 headers: {
-                    ...formData.getHeaders(),
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    ...form.getHeaders(),
                 },
+                maxBodyLength: Infinity,
             }
         );
 
+        console.log('WhatsApp Media Upload Success:', response.data.id);
         return response.data.id;
     } catch (error) {
-        console.error('WhatsApp Media Upload Error:', error.response?.data || error.message);
-        throw new Error('Failed to upload PDF to WhatsApp');
+        console.error("UPLOAD ERROR FULL:", error.response?.data || error.message);
+        throw error;
     }
 };
 
 /**
  * Sends a document message via WhatsApp Cloud API.
- * @param {string} to - Customer phone number (with country code, no +).
- * @param {string} mediaId - The media ID from upload.
- * @param {string} fileName - Display name for the document.
- * @returns {Promise<Object>} - API response.
  */
 exports.sendDocumentMessage = async (to, mediaId, fileName = 'Invoice.pdf') => {
     try {
+        const cleanPhone = to.replace(/\D/g, '');
+
         const response = await axios.post(
             `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
             {
-                messaging_product: 'whatsapp',
-                to: to,
-                type: 'document',
+                messaging_product: "whatsapp",
+                to: cleanPhone,
+                type: "document",
                 document: {
                     id: mediaId,
-                    filename: fileName
+                    filename: fileName,
                 },
             },
             {
                 headers: {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
             }
         );

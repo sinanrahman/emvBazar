@@ -27,6 +27,13 @@ const billWorker = new Worker('billQueue', async (job) => {
         console.log(`Generating PDF for URL: ${pdfUrl}`);
         const pdfBuffer = await generatePDFBuffer(pdfUrl, cookies);
 
+        // Verification logs as requested
+        console.log("PDF type:", typeof pdfBuffer);
+        console.log("Is Buffer:", Buffer.isBuffer(pdfBuffer));
+        if (Buffer.isBuffer(pdfBuffer)) {
+            console.log("Buffer constructor:", pdfBuffer.constructor.name);
+        }
+
         // 2. Upload to WhatsApp
         console.log(`Uploading PDF to WhatsApp Media API...`);
         const mediaId = await uploadPDFToWhatsApp(pdfBuffer, `Invoice_${billId}.pdf`);
