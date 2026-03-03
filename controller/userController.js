@@ -3,6 +3,7 @@ const Bill = require('../model/Bill');
 const { scheduleOneMinuteReminder } = require('./messageController');
 const billQueue = require('../queues/billQueue');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
+const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate } = require('../utils/whatsappService');
 
 exports.getHomePage = (req, res) => {
     res.render('home');
@@ -116,24 +117,74 @@ exports.sendHistoryWhatsApp = async (req, res) => {
         const { startDate, endDate, filter } = req.query;
         const user = await User.findById(req.params.id);
 
-        // Calculate due amount for the message
-        const allBills = await Bill.find({ phone: user.phone });
-        const dueAmount = allBills.reduce((acc, b) => acc + b.totalAmount, 0);
+        let query = { phone: user.phone };
+        let dateFilter = {};
 
-        // Add to queue
-        await billQueue.add('sendStatement', {
-            userId: user._id.toString(),
-            phone: user.phone,
-            dueAmount: dueAmount,
-            adminAuth: req.cookies.auth,
-            appUrl: process.env.APP_URL || `${req.protocol}://${req.get('host')}`,
-            filterParams: { startDate, endDate, filter } // Pass filters to generate the same PDF
+        if (filter === '1month') {
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            dateFilter.$gte = oneMonthAgo;
+        } else if (filter === '1.5month') {
+            const oneAndHalfMonthAgo = new Date();
+            oneAndHalfMonthAgo.setDate(oneAndHalfMonthAgo.getDate() - 45);
+            dateFilter.$gte = oneAndHalfMonthAgo;
+        } else if (startDate || endDate) {
+            if (startDate) dateFilter.$gte = new Date(startDate);
+            if (endDate) dateFilter.$lte = new Date(endDate);
+        }
+
+        if (Object.keys(dateFilter).length > 0) {
+            query.createdAt = dateFilter;
+        }
+
+        // Calculate due amount based on filtered bills
+        const filteredBills = await Bill.find(query);
+        const dueAmount = filteredBills.reduce((acc, b) => acc + b.totalAmount, 0);
+
+        // Add to queue and wait for result (or do it synchronously for immediate feedback)
+        // To give "Success message from Meta", we can process it here or wait for job.
+        // Let's use the worker but returning a "queued" status is not what the user wants.
+        // They want the Meta response. So we'll run the service calls here.
+
+        const protocol = req.protocol;
+        const host = req.get('host');
+        const appUrl = process.env.APP_URL || `${protocol}://${host}`;
+        const cookies = req.cookies.auth ? { auth: req.cookies.auth } : {};
+
+        // 1. Construct Statement URL with filters
+        let statementUrl = `${appUrl}/user/${user._id}/history/invoice`;
+        const params = new URLSearchParams();
+        if (filter) params.append('filter', filter);
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        if (params.toString()) statementUrl += `?${params.toString()}`;
+
+        // 2. Generate PDF
+        const pdfBuffer = await generatePDFBuffer(statementUrl, cookies);
+
+        // 3. Upload to WhatsApp
+        const mediaId = await uploadPDFToWhatsApp(pdfBuffer, `Statement_${user.username}.pdf`);
+
+        // 4. Send Template Message
+        const templateResponse = await sendStatementTemplate(user.phone, mediaId, user.username, dueAmount.toFixed(2));
+
+        // Wait 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // 5. Send PDF Document Message
+        const docResponse = await sendDocumentMessage(user.phone, mediaId, `Statement_${user.username}.pdf`);
+
+        res.status(200).json({
+            success: true,
+            message: "Statement sent successfully!",
+            metaResponse: docResponse
         });
-
-        res.redirect(`/user/${user._id}/history?success=queued`);
     } catch (error) {
         console.error("Send Statement Error:", error);
-        res.status(500).send("Error queuing statement delivery");
+        res.status(500).json({
+            success: false,
+            message: "Error sending statement: " + error.message
+        });
     }
 };
 
