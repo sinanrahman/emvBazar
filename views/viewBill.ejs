@@ -143,13 +143,15 @@
 
             .action-buttons {
                 display: flex;
-                flex-direction: column;
+                flex-direction: row;
+                flex-wrap: wrap;
                 gap: 10px;
+                justify-content: center;
                 padding: 0 15px;
             }
 
             .action-buttons .btn {
-                width: 100%;
+                flex: 1 1 45%;
                 margin: 0 !important;
             }
         }
@@ -213,6 +215,7 @@
 
         <div class="text-center mt-4 no-print action-buttons d-none d-md-block">
             <button class="btn btn-outline-success me-2" onclick="window.print()">Print Invoice</button>
+            <button class="btn btn-outline-primary me-2 share-btn" onclick="shareInvoice()">Share Invoice</button>
             <a href="/bills" class="btn btn-outline-secondary">Back to Billing</a>
         </div>
 
@@ -294,8 +297,57 @@
         </script>
 
         <div class="text-center mt-2 no-print action-buttons d-md-none">
-            <button class="btn btn-success" onclick="window.print()">Print Invoice</button>
+            <button class="btn btn-success" onclick="window.print()">Print</button>
+            <button class="btn btn-primary share-btn" onclick="shareInvoice()">Share</button>
         </div>
+
+        <script>
+            async function shareInvoice() {
+                const btn = document.querySelectorAll('.share-btn');
+                const originalText = [];
+                btn.forEach(b => originalText.push(b.innerText));
+
+                try {
+                    btn.forEach(b => {
+                        b.disabled = true;
+                        b.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Preparing PDF...';
+                    });
+
+                    const response = await fetch(`/download-bill/<%= bill._id %>`);
+                    if (!response.ok) throw new Error('Failed to generate PDF');
+
+                    const blob = await response.blob();
+                    const file = new File([blob], 'Invoice_<%= bill.username %>_<%= new Date(bill.createdAt).toLocaleDateString().replace(/\//g, "-") %>.pdf', { type: 'application/pdf' });
+
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Invoice - EMV BAZAR',
+                            text: 'Invoice for <%= bill.username %>'
+                        });
+                    } else {
+                        // Fallback: Just download it
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Invoice_<%= bill.username %>.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                        alert('Your browser is not supporting share, but PDF is downloaded.');
+                    }
+                } catch (error) {
+                    console.error('Error sharing:', error);
+                    alert('Could not share the invoice. Please try again or use the Print button.');
+                } finally {
+                    btn.forEach((b, i) => {
+                        b.disabled = false;
+                        b.innerText = originalText[i];
+                    });
+                }
+            }
+        </script>
 
 </body>
 

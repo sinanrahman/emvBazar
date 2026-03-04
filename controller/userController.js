@@ -286,7 +286,7 @@ exports.postEditUser = async (req, res) => {
             status,
             dueDate: dueDate || null,
             type,
-            billNeeded: billNeeded === 'true'
+            billNeeded: billNeeded === 'true',
         });
         res.redirect(`/user/${req.params.id}`);
     } catch (error) {
@@ -377,7 +377,7 @@ exports.addUser = async (req, res) => {
             status,
             dueDate: dueDate || null,
             type,
-            billNeeded: billNeeded === 'true'
+            billNeeded: billNeeded === 'true',
         });
 
         await newUser.save();
