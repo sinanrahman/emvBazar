@@ -1,4 +1,5 @@
-require('dotenv').config();  // 🔥 VERY IMPORTANT
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });  // 🔥 VERY IMPORTANT (Robust Path)
 
 const IORedis = require('ioredis');
 

@@ -235,6 +235,13 @@
                     </h1>
                     <p>
                         <%= user.phone %>
+                            <% if (user.whatsappOptIn) { %>
+                                <span class="badge bg-success rounded-pill ms-2"
+                                    style="font-size: 0.65rem; vertical-align: middle;">Opt-In ✅</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary rounded-pill ms-2"
+                                        style="font-size: 0.65rem; vertical-align: middle;">No Opt-In</span>
+                                    <% } %>
                     </p>
                 </div>
                 <button class="action-btn" data-bs-toggle="modal" data-bs-target="#actionModal">

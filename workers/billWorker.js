@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const { Worker } = require('bullmq');
 const connection = require('../config/redis');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
@@ -15,6 +16,13 @@ const billWorker = new Worker('billQueue', async (job) => {
     const cookies = adminAuth ? { auth: adminAuth } : {};
 
     try {
+        // Find user by phone to check consent
+        const user = await User.findOne({ phone });
+        if (!user || !user.whatsappOptIn) {
+            console.log(`⚠️ Skip: ${phone} has not opted in for WhatsApp.`);
+            return { success: false, reason: "No Opt-In" };
+        }
+
         if (job.name === 'sendBill') {
             const { billId } = job.data;
             const bill = await Bill.findById(billId);
@@ -76,7 +84,8 @@ const billWorker = new Worker('billQueue', async (job) => {
 }, {
 
     connection,
-    concurrency: 2
+    concurrency: 2,
+    skipCheck: true
 });
 
 

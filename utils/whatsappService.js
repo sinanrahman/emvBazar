@@ -3,7 +3,18 @@ const FormData = require('form-data');
 
 const ACCESS_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
-const VERSION = 'v19.0';
+const VERSION = 'v25.0'; // Updated to match user's working version
+
+/**
+ * Helper to ensure phone number has country code 91
+ */
+const formatPhone = (phone) => {
+    let clean = phone.replace(/\D/g, '');
+    if (clean.length === 10) {
+        return '91' + clean;
+    }
+    return clean;
+};
 
 /**
  * Uploads a PDF buffer to WhatsApp Media API using form-data library.
@@ -46,7 +57,7 @@ exports.uploadPDFToWhatsApp = async (pdfBuffer, fileName = 'invoice.pdf') => {
  */
 exports.sendDocumentMessage = async (to, mediaId, fileName = 'Invoice.pdf') => {
     try {
-        const cleanPhone = to.replace(/\D/g, '');
+        const cleanPhone = formatPhone(to);
 
         const response = await axios.post(
             `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
@@ -79,7 +90,7 @@ exports.sendDocumentMessage = async (to, mediaId, fileName = 'Invoice.pdf') => {
  */
 exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
     try {
-        const cleanPhone = to.replace(/\D/g, '');
+        const cleanPhone = formatPhone(to);
 
         const response = await axios.post(
             `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
@@ -122,7 +133,7 @@ exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
  */
 exports.sendUserAddedTemplate = async (to, name) => {
     try {
-        const cleanPhone = to.replace(/\D/g, '');
+        const cleanPhone = formatPhone(to);
 
         const response = await axios.post(
             `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
@@ -155,6 +166,48 @@ exports.sendUserAddedTemplate = async (to, name) => {
     } catch (error) {
         console.error('WhatsApp User Added Template Error:', error.response?.data || error.message);
         throw new Error('Failed to send user added template via WhatsApp');
+    }
+};
+
+
+/**
+ * Sends a PDF reminder template.
+ */
+exports.sendPDFReminderTemplate = async (to, name) => {
+    try {
+        const cleanPhone = formatPhone(to);
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
+            {
+                messaging_product: "whatsapp",
+                to: cleanPhone,
+                type: "template",
+                template: {
+                    name: "pdf",
+                    language: { code: "en" },
+                    components: [
+                        {
+                            type: "body",
+                            parameters: [
+                                { type: "text", text: name }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('WhatsApp PDF Reminder Template Error:', error.response?.data || error.message);
+        throw new Error('Failed to send PDF reminder template via WhatsApp');
     }
 };
 

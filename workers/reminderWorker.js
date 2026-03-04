@@ -1,50 +1,15 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const { Worker } = require('bullmq');
 const axios = require('axios');
 const mongoose = require('mongoose');
 const connection = require('../config/redis');
 const User = require('../model/User');
-const { sendUserAddedTemplate } = require('../utils/whatsappService');
+const { sendUserAddedTemplate, sendPDFReminderTemplate } = require('../utils/whatsappService');
 
 mongoose.connect(process.env.DB_URL);
 
-async function sendWhatsAppMessage(phone, name) {
-  try {
-    const response = await axios.post(
-      `https://graph.facebook.com/v25.0/${process.env.PHONE_NUMBER_ID}/messages`,
-      {
-        messaging_product: "whatsapp",
-        to: "91" + phone,
-        type: "template",
-        template: {
-          name: "pdf",
-          language: { code: "en" },
-          components: [
-            {
-              type: "body",
-              parameters: [
-                { type: "text", text: name }
-              ]
-            }
-          ]
-        }
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-          "Content-Type": "application/json"
-        }
-      }
-    );
-
-    console.log("META RESPONSE:", response.data);
-    console.log(`✅ WhatsApp sent to ${phone}`);
-  } catch (error) {
-    console.error("❌ WhatsApp Error:", error.response?.data || error.message);
-    throw error;
-  }
-}
 
 const worker = new Worker(
   'reminderQueue',
@@ -52,6 +17,14 @@ const worker = new Worker(
     console.log("🔥 Processing job:", job.name, job.id);
 
     const { phone, username } = job.data;
+
+    // Find user to check opt-in
+    const user = await User.findOne({ phone });
+
+    if (!user || !user.whatsappOptIn) {
+      console.log(`⚠️ Skip: ${username} (${phone}) has not opted in for WhatsApp.`);
+      return;
+    }
 
     // Handle User Added Welcome Message
     if (job.name === 'welcomeMessage') {
@@ -68,18 +41,19 @@ const worker = new Worker(
 
     // Handle Payment Reminder
     if (job.name === 'paymentReminder' || !job.name) {
-      const user = await User.findOne({ phone });
-
-      if (!user || user.status === "paid" || !user.reminderActive) {
+      if (user.status === "paid" || !user.reminderActive) {
         console.log("⚠️ Reminder skipped (paid or inactive)");
         return;
       }
 
-      await sendWhatsAppMessage(phone, username);
+      await sendPDFReminderTemplate(phone, username);
       console.log(`🎉 PDF reminder sent to ${username}`);
     }
   },
-  { connection }
+  {
+    connection,
+    skipCheck: true
+  }
 );
 
 worker.on('completed', (job) => {

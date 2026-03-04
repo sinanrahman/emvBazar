@@ -117,6 +117,13 @@ exports.sendHistoryWhatsApp = async (req, res) => {
         const { startDate, endDate, filter } = req.query;
         const user = await User.findById(req.params.id);
 
+        if (!user.whatsappOptIn) {
+            return res.status(403).json({
+                success: false,
+                message: "This user has not opted in for WhatsApp notifications."
+            });
+        }
+
         let query = { phone: user.phone };
         let dateFilter = {};
 
@@ -279,7 +286,11 @@ exports.getEditUser = async (req, res) => {
 
 exports.postEditUser = async (req, res) => {
     try {
-        const { username, phone, status, dueDate, type, billNeeded } = req.body;
+        const { username, phone, status, dueDate, type, billNeeded, whatsappOptIn } = req.body;
+        const user = await User.findById(req.params.id);
+
+        const isOptingIn = whatsappOptIn === 'on' && !user.whatsappOptIn;
+
         await User.findByIdAndUpdate(req.params.id, {
             username,
             phone,
@@ -287,6 +298,8 @@ exports.postEditUser = async (req, res) => {
             dueDate: dueDate || null,
             type,
             billNeeded: billNeeded === 'true',
+            whatsappOptIn: whatsappOptIn === 'on',
+            whatsappOptInAt: isOptingIn ? new Date() : user.whatsappOptInAt
         });
         res.redirect(`/user/${req.params.id}`);
     } catch (error) {
@@ -370,7 +383,7 @@ exports.downloadBillPDF = async (req, res) => {
 
 exports.addUser = async (req, res) => {
     try {
-        const { username, phone, status, dueDate, type, billNeeded } = req.body;
+        const { username, phone, status, dueDate, type, billNeeded, whatsappOptIn } = req.body;
 
         const newUser = new User({
             username,
@@ -379,6 +392,8 @@ exports.addUser = async (req, res) => {
             dueDate: dueDate || null,
             type,
             billNeeded: billNeeded === 'true',
+            whatsappOptIn: whatsappOptIn === 'on',
+            whatsappOptInAt: whatsappOptIn === 'on' ? new Date() : null
         });
 
         await newUser.save();
@@ -387,7 +402,7 @@ exports.addUser = async (req, res) => {
 
 
         res.render('addUser', {
-            success: 'User added successfully!',
+            success: 'User added successfully! Tip: Ask the customer to send "HI" to our number to ensure reliable delivery.',
             error: null,
             currentPage: 'addUser'
         });

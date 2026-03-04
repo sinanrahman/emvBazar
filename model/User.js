@@ -38,6 +38,13 @@ const userSchema = new mongoose.Schema({
     billNeeded: {
         type: Boolean,
         default: false
+    },
+    whatsappOptIn: {
+        type: Boolean,
+        default: false
+    },
+    whatsappOptInAt: {
+        type: Date
     }
 }, {
     timestamps: true
