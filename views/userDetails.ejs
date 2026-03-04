@@ -292,10 +292,15 @@
                             <% bills.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).slice(0,
                                 3).forEach(bill => { %>
                                 <div class="transaction-item <%= bill.type === 'payment' ? 'payment' : '' %>">
-                                    <span class="date">
-                                        <%= new Date(bill.createdAt).toLocaleDateString(undefined, {month: 'short' ,
-                                            day: 'numeric' , year: 'numeric' }) %>
-                                    </span>
+                                    <div class="d-flex flex-column">
+                                        <span class="date">
+                                            <%= new Date(bill.createdAt).toLocaleDateString(undefined, {month: 'short' ,
+                                                day: 'numeric' , year: 'numeric' }) %>
+                                        </span>
+                                        <small class="text-muted">
+                                            <%= bill.description || (bill.items[0]?.item || 'Purchase' ) %>
+                                        </small>
+                                    </div>
                                     <div class="d-flex align-items-center">
                                         <span class="amount">
                                             <%= bill.type==='payment' ? '+' : '' %>₹<%= Math.abs(bill.totalAmount) %>

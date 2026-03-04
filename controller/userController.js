@@ -304,13 +304,14 @@ exports.deleteUser = async (req, res) => {
 };
 exports.saveBillData = async (req, res) => {
     try {
-        const { username, phone, date, items, totalAmount } = req.body;
+        const { username, phone, date, items, totalAmount, description } = req.body;
 
         const newBill = new Bill({
             username,
             phone,
             items,
             totalAmount,
+            description,
             createdAt: date ? new Date(date) : new Date()
         });
 

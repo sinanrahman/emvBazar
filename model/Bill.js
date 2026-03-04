@@ -40,6 +40,10 @@ const billSchema = new mongoose.Schema({
         type: String,
         enum: ['purchase', 'payment'],
         default: 'purchase'
+    },
+    description: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true

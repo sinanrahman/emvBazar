@@ -237,6 +237,9 @@
                         <%= bill.username %>
                     </span><br>
                     <%= bill.phone %>
+                        <% if (bill.description) { %>
+                            <br><em class="text-muted small">Note: <%= bill.description %></em>
+                            <% } %>
                 </div>
                 <div class="col-6 text-end">
                     <strong>Date:</strong><br>
