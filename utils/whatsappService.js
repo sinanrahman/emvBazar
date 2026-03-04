@@ -117,3 +117,45 @@ exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
 };
 
 
+/**
+ * Sends a welcome template when a new user is added.
+ */
+exports.sendUserAddedTemplate = async (to, name) => {
+    try {
+        const cleanPhone = to.replace(/\D/g, '');
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
+            {
+                messaging_product: "whatsapp",
+                to: cleanPhone,
+                type: "template",
+                template: {
+                    name: "user_added",
+                    language: { code: "ml" },
+                    components: [
+                        {
+                            type: "body",
+                            parameters: [
+                                { type: "text", text: name }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('WhatsApp User Added Template Error:', error.response?.data || error.message);
+        throw new Error('Failed to send user added template via WhatsApp');
+    }
+};
+
+

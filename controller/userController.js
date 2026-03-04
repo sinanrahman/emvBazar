@@ -1,6 +1,6 @@
 const User = require('../model/User');
 const Bill = require('../model/Bill');
-const { scheduleOneMinuteReminder } = require('./messageController');
+const { scheduleWelcomeMessage } = require('./messageController');
 const billQueue = require('../queues/billQueue');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
 const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate } = require('../utils/whatsappService');
@@ -382,10 +382,9 @@ exports.addUser = async (req, res) => {
         });
 
         await newUser.save();
+        await scheduleWelcomeMessage(newUser);
 
-        if (newUser.dueDate) {
-            await scheduleOneMinuteReminder(newUser);
-        }
+
 
         res.render('addUser', {
             success: 'User added successfully!',

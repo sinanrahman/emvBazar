@@ -1,15 +1,13 @@
 const reminderQueue = require('../queues/reminderQueue');
 
-async function scheduleOneMinuteReminder(user) {
-
-  const delay = 60 * 1000; // ✅ 1 minute in milliseconds
+async function scheduleWelcomeMessage(user) {
+  const delay = 30 * 1000; // 30 seconds
 
   await reminderQueue.add(
-    'paymentReminder',
+    'welcomeMessage',
     {
       username: user.username,
-      phone: user.phone,
-      dueDate: user.dueDate || null
+      phone: user.phone
     },
     {
       delay,
@@ -21,7 +19,7 @@ async function scheduleOneMinuteReminder(user) {
     }
   );
 
-  console.log(`✅ 1-minute reminder scheduled for ${user.username}`);
+  console.log(`✅ Welcome message scheduled for ${user.username} in 30 seconds`);
 }
 
-module.exports = { scheduleOneMinuteReminder };
+module.exports = { scheduleWelcomeMessage };
