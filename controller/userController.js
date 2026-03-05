@@ -293,7 +293,7 @@ exports.postEditUser = async (req, res) => {
 
         await User.findByIdAndUpdate(req.params.id, {
             username,
-            phone,
+            phone: normalizePhone(phone),
             status,
             dueDate: dueDate || null,
             type,
@@ -381,13 +381,23 @@ exports.downloadBillPDF = async (req, res) => {
     }
 };
 
+// Normalize phone to 91 + 10 digits for consistent storage and WhatsApp API
+function normalizePhone(phone) {
+    if (!phone || typeof phone !== 'string') return phone;
+    const clean = phone.replace(/\D/g, '');
+    if (clean.length === 10) return '91' + clean;
+    if (clean.length === 12 && clean.startsWith('91')) return clean;
+    return clean || phone;
+}
+
 exports.addUser = async (req, res) => {
     try {
         const { username, phone, status, dueDate, type, billNeeded, whatsappOptIn } = req.body;
+        const normalizedPhone = normalizePhone(phone);
 
         const newUser = new User({
-            username,
-            phone,
+            username: (username || '').trim(),
+            phone: normalizedPhone,
             status,
             dueDate: dueDate || null,
             type,
@@ -397,7 +407,11 @@ exports.addUser = async (req, res) => {
         });
 
         await newUser.save();
-        await scheduleWelcomeMessage(newUser);
+
+        // Only schedule welcome template when user opted in for WhatsApp
+        if (newUser.whatsappOptIn) {
+            await scheduleWelcomeMessage(newUser);
+        }
 
 
 

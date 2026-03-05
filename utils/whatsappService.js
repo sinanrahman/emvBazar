@@ -129,31 +129,37 @@ exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
 
 
 /**
- * Sends a welcome template when a new user is added.
+ * Sends the user_added welcome template (Malayalam) when a new user is added.
+ * Template: നമസ്കാരം {{1}}, ...
  */
 exports.sendUserAddedTemplate = async (to, name) => {
     try {
         const cleanPhone = formatPhone(to);
+        // Ensure name is a non-empty string; template allows one body parameter
+        const safeName = (name != null ? String(name).trim() : '') || 'Customer';
+        const nameParam = safeName.slice(0, 256); // WhatsApp template param limit
+
+        const payload = {
+            messaging_product: "whatsapp",
+            to: String(cleanPhone),
+            type: "template",
+            template: {
+                name: "user_added",
+                language: { code: "ml" },
+                components: [
+                    {
+                        type: "body",
+                        parameters: [
+                            { type: "text", text: nameParam }
+                        ]
+                    }
+                ]
+            }
+        };
 
         const response = await axios.post(
             `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
-            {
-                messaging_product: "whatsapp",
-                to: cleanPhone,
-                type: "template",
-                template: {
-                    name: "user_added",
-                    language: { code: "ml" },
-                    components: [
-                        {
-                            type: "body",
-                            parameters: [
-                                { type: "text", text: name }
-                            ]
-                        }
-                    ]
-                }
-            },
+            payload,
             {
                 headers: {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -164,7 +170,11 @@ exports.sendUserAddedTemplate = async (to, name) => {
 
         return response.data;
     } catch (error) {
-        console.error('WhatsApp User Added Template Error:', error.response?.data || error.message);
+        const metaError = error.response?.data;
+        console.error('WhatsApp User Added Template Error:', metaError || error.message);
+        if (metaError) {
+            console.error('Meta error details:', JSON.stringify(metaError, null, 2));
+        }
         throw new Error('Failed to send user added template via WhatsApp');
     }
 };

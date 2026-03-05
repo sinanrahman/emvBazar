@@ -10,6 +10,13 @@ const { sendUserAddedTemplate, sendPDFReminderTemplate } = require('../utils/wha
 
 mongoose.connect(process.env.DB_URL);
 
+function normalizePhone(phone) {
+  if (!phone || typeof phone !== 'string') return phone;
+  const clean = String(phone).replace(/\D/g, '');
+  if (clean.length === 10) return '91' + clean;
+  if (clean.length === 12 && clean.startsWith('91')) return clean;
+  return clean || phone;
+}
 
 const worker = new Worker(
   'reminderQueue',
@@ -17,9 +24,12 @@ const worker = new Worker(
     console.log("🔥 Processing job:", job.name, job.id);
 
     const { phone, username } = job.data;
+    const normalizedPhone = normalizePhone(phone);
 
-    // Find user to check opt-in
-    const user = await User.findOne({ phone });
+    // Find user (by phone or normalized phone so old jobs still work)
+    const user = await User.findOne({
+      $or: [{ phone }, { phone: normalizedPhone }].filter((o) => o.phone)
+    });
 
     if (!user || !user.whatsappOptIn) {
       console.log(`⚠️ Skip: ${username} (${phone}) has not opted in for WhatsApp.`);
@@ -29,8 +39,9 @@ const worker = new Worker(
     // Handle User Added Welcome Message
     if (job.name === 'welcomeMessage') {
       try {
-        const result = await sendUserAddedTemplate(phone, username);
-        console.log(`🎉 Welcome message sent to ${username} (${phone})`);
+        const toPhone = user ? user.phone : normalizedPhone || phone;
+        const result = await sendUserAddedTemplate(toPhone, username || user?.username);
+        console.log(`🎉 Welcome message sent to ${username || user?.username} (${toPhone})`);
         console.log(`META SUCCESS RESPONSE:`, JSON.stringify(result, null, 2));
       } catch (error) {
         console.error(`❌ Welcome message failed for ${username}:`, error.message);

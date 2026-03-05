@@ -3,6 +3,7 @@ const connection = require('../config/redis');
 
 const billQueue = new Queue('billQueue', {
     connection,
+    skipCheck: true,
     defaultJobOptions: {
         attempts: 3,
         backoff: {
