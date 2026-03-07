@@ -3,7 +3,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const { Worker } = require('bullmq');
 const connection = require('../config/redis');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
-const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate } = require('../utils/whatsappService');
+const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate, sendReminderTemplate } = require('../utils/whatsappService');
 const Bill = require('../model/Bill');
 const User = require('../model/User');
 const connectDB = require('../config/db');
@@ -50,6 +50,8 @@ const billWorker = new Worker('billQueue', async (job) => {
             const user = await User.findById(userId);
             if (!user) throw new Error(`User ${userId} not found`);
 
+            /* 
+            // OLD PDF AND TEMPLATE LOGIC - COMMENTED OUT AS PER USER REQUEST
             // 1. Construct Statement URL with filters
             let statementUrl = `${appUrl}/user/${userId}/history/invoice`;
             const params = new URLSearchParams();
@@ -72,8 +74,11 @@ const billWorker = new Worker('billQueue', async (job) => {
 
             // 4. Send PDF Document Message (Sent SECOND)
             await sendDocumentMessage(phone, mediaId, `Statement_${user.username}.pdf`);
+            */
 
-            console.log(`Successfully sent Template then Statement to ${user.username} (${phone})`);
+            // NEW TEMPLATE LOGIC (Malayam 'reminder' template)
+            await sendReminderTemplate(phone, user.username, user._id.toString());
+            console.log(`Successfully sent Template (Reminder) to ${user.username} (${phone})`);
         }
 
         return { success: true };

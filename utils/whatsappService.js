@@ -127,6 +127,53 @@ exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
     }
 };
 
+/**
+ * Sends the 'reminder' Malayalam template with a link to the invoice.
+ * Template body: 
+ * പ്രിയപ്പെട്ട {{1}},
+ * നിങ്ങളുടെ ഈ മാസത്തെ ബിൽ തയ്യാറായി.
+ * ബിൽ കാണാൻ താഴെയുള്ള ലിങ്ക് തുറക്കുക:
+ * https://emv-bazar.com/invoice/{{2}}
+ */
+exports.sendReminderTemplate = async (to, name, userId) => {
+    try {
+        const cleanPhone = formatPhone(to);
+
+        const response = await axios.post(
+            `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`,
+            {
+                messaging_product: "whatsapp",
+                to: cleanPhone,
+                type: "template",
+                template: {
+                    name: "reminder",
+                    language: { code: "ml" },
+                    components: [
+                        {
+                            type: "body",
+                            parameters: [
+                                { type: "text", text: name },
+                                { type: "text", text: userId }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('WhatsApp Reminder Template Error:', error.response?.data || error.message);
+        throw new Error('Failed to send reminder template via WhatsApp');
+    }
+};
+
 
 /**
  * Sends the user_added welcome template (Malayalam) when a new user is added.

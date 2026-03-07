@@ -3,7 +3,7 @@ const Bill = require('../model/Bill');
 const { scheduleWelcomeMessage } = require('./messageController');
 const billQueue = require('../queues/billQueue');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
-const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate } = require('../utils/whatsappService');
+const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate, sendReminderTemplate } = require('../utils/whatsappService');
 
 exports.getHomePage = (req, res) => {
     res.render('home');
@@ -158,6 +158,8 @@ exports.sendHistoryWhatsApp = async (req, res) => {
         const appUrl = process.env.APP_URL || `${protocol}://${host}`;
         const cookies = req.cookies.auth ? { auth: req.cookies.auth } : {};
 
+        /* 
+        // OLD PDF AND TEMPLATE LOGIC - COMMENTED OUT AS PER USER REQUEST
         // 1. Construct Statement URL with filters
         let statementUrl = `${appUrl}/user/${user._id}/history/invoice`;
         const params = new URLSearchParams();
@@ -180,11 +182,15 @@ exports.sendHistoryWhatsApp = async (req, res) => {
 
         // 5. Send PDF Document Message
         const docResponse = await sendDocumentMessage(user.phone, mediaId, `Statement_${user.username}.pdf`);
+        */
+
+        // NEW TEMPLATE LOGIC (Malayam 'reminder' template)
+        const reminderResponse = await sendReminderTemplate(user.phone, user.username, user._id.toString());
 
         res.status(200).json({
             success: true,
             message: "Statement sent successfully!",
-            metaResponse: docResponse
+            metaResponse: reminderResponse
         });
     } catch (error) {
         console.error("Send Statement Error:", error);
