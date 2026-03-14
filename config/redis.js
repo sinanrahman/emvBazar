@@ -11,7 +11,7 @@ console.log("Connecting to:", process.env.REDIS_URL);
 
 const connection = new IORedis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null,
-  tls: {} // required for rediss
+  // tls: {} // required for rediss
 });
 
 module.exports = connection;
