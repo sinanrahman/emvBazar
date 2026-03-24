@@ -76,8 +76,17 @@ const billWorker = new Worker('billQueue', async (job) => {
             await sendDocumentMessage(phone, mediaId, `Statement_${user.username}.pdf`);
             */
 
+            let linkParam = user._id.toString();
+            if (filterParams) {
+                const params = new URLSearchParams();
+                if (filterParams.filter) params.append('filter', filterParams.filter);
+                if (filterParams.startDate) params.append('startDate', filterParams.startDate);
+                if (filterParams.endDate) params.append('endDate', filterParams.endDate);
+                if (params.toString()) linkParam += `?${params.toString()}`;
+            }
+
             // NEW TEMPLATE LOGIC (Malayam 'reminder' template)
-            await sendReminderTemplate(phone, user.username, user._id.toString());
+            await sendReminderTemplate(phone, user.username, linkParam);
             console.log(`Successfully sent Template (Reminder) to ${user.username} (${phone})`);
         }
 

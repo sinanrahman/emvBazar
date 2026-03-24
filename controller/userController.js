@@ -158,34 +158,18 @@ exports.sendHistoryWhatsApp = async (req, res) => {
         const appUrl = process.env.APP_URL || `${protocol}://${host}`;
         const cookies = req.cookies.auth ? { auth: req.cookies.auth } : {};
 
-        /* 
-        // OLD PDF AND TEMPLATE LOGIC - COMMENTED OUT AS PER USER REQUEST
-        // 1. Construct Statement URL with filters
-        let statementUrl = `${appUrl}/user/${user._id}/history/invoice`;
-        const params = new URLSearchParams();
-        if (filter) params.append('filter', filter);
-        if (startDate) params.append('startDate', startDate);
-        if (endDate) params.append('endDate', endDate);
-        if (params.toString()) statementUrl += `?${params.toString()}`;
-
-        // 2. Generate PDF
-        const pdfBuffer = await generatePDFBuffer(statementUrl, cookies);
-
-        // 3. Upload to WhatsApp
-        const mediaId = await uploadPDFToWhatsApp(pdfBuffer, `Statement_${user.username}.pdf`);
-
-        // 4. Send Template Message
-        const templateResponse = await sendStatementTemplate(user.phone, mediaId, user.username, dueAmount.toFixed(2));
-
-        // Wait 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // 5. Send PDF Document Message
-        const docResponse = await sendDocumentMessage(user.phone, mediaId, `Statement_${user.username}.pdf`);
-        */
+        let queryParams = new URLSearchParams();
+        if (filter) queryParams.append('filter', filter);
+        if (startDate) queryParams.append('startDate', startDate);
+        if (endDate) queryParams.append('endDate', endDate);
+        
+        let linkParam = user._id.toString();
+        if (queryParams.toString()) {
+            linkParam += `?${queryParams.toString()}`;
+        }
 
         // NEW TEMPLATE LOGIC (Malayam 'reminder' template)
-        const reminderResponse = await sendReminderTemplate(user.phone, user.username, user._id.toString());
+        const reminderResponse = await sendReminderTemplate(user.phone, user.username, linkParam);
 
         res.status(200).json({
             success: true,
@@ -433,5 +417,38 @@ exports.addUser = async (req, res) => {
             error: err.message,
             currentPage: 'addUser'
         });
+    }
+};
+
+exports.getPublicInvoicePDF = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { startDate, endDate, filter } = req.query;
+        const user = await User.findById(userId);
+        
+        if (!user) return res.status(404).send("Invoice not found.");
+
+        const protocol = req.protocol;
+        const host = req.get('host');
+        
+        let url = `${protocol}://${host}/user/${userId}/history/invoice`;
+        
+        const params = new URLSearchParams();
+        if (filter) params.append('filter', filter);
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        if (params.toString()) url += `?${params.toString()}`;
+
+        // Use 'true' string since the authMiddleware expects req.cookies.auth === 'true'
+        const cookies = { auth: 'true' };
+
+        const pdfBuffer = await generatePDFBuffer(url, cookies);
+
+        res.contentType("application/pdf");
+        res.setHeader("Content-Disposition", `inline; filename=Statement_${user.username}.pdf`);
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error("Public PDF Generation Error:", error);
+        res.status(500).send("Error generating highly requested PDF document: " + error.message);
     }
 };
