@@ -153,8 +153,8 @@ exports.sendReminderTemplate = async (to, name, userId) => {
                 to: cleanPhone,
                 type: "template",
                 template: {
-                    name: "reminder",
-                    language: { code: "ml" },
+                    name: "emv_bazar", // <-- Template name updated here
+                    language: { code: "ml" }, // Note: Change "ml" to "en" if you submitted it as English in Meta
                     components: [
                         {
                             type: "body",
