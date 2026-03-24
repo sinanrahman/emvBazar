@@ -11,8 +11,31 @@ console.log("Connecting to:", process.env.REDIS_URL);
 
 const connection = new IORedis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null,
-  family: 0, // Automatically fallback to IPv4 to prevent IPv6 routing ETIMEDOUT errors
-  tls: process.env.REDIS_URL.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
+
+  family: 4, // 🔥 FORCE IPv4 (THIS FIXES YOUR ISSUE)
+
+  connectTimeout: 10000, // avoid long hanging
+
+  retryStrategy: (times) => {
+    console.log(`Retrying Redis... attempt ${times}`);
+    return Math.min(times * 500, 3000);
+  },
+
+  tls: process.env.REDIS_URL.startsWith('rediss://')
+    ? { rejectUnauthorized: false }
+    : undefined
+});
+
+connection.on('connect', () => {
+  console.log('✅ Redis connected');
+});
+
+connection.on('ready', () => {
+  console.log('🚀 Redis ready');
+});
+
+connection.on('error', (err) => {
+  console.error('❌ Redis error:', err);
 });
 
 module.exports = connection;
