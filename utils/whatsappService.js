@@ -130,10 +130,17 @@ exports.sendStatementTemplate = async (to, mediaId, name, dueAmount) => {
 /**
  * Sends the 'reminder' Malayalam template with a link to the invoice.
  * Template body: 
+ * EMV BAZAR
  * പ്രിയപ്പെട്ട {{1}},
+ *
  * നിങ്ങളുടെ ഈ മാസത്തെ ബിൽ തയ്യാറായി.
+ *
  * ബിൽ കാണാൻ താഴെയുള്ള ലിങ്ക് തുറക്കുക:
- * https://emv-bazar.com/invoice/{{2}}
+ *
+ * https://emvbazar.shamiltp.me/invoice/{{2}}
+ *
+ * നന്ദി
+ * Thank you for sticking with us!
  */
 exports.sendReminderTemplate = async (to, name, userId) => {
     try {
