@@ -11,7 +11,8 @@ console.log("Connecting to:", process.env.REDIS_URL);
 
 const connection = new IORedis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null,
-  // tls: {} // required for rediss
+  family: 0, // Automatically fallback to IPv4 to prevent IPv6 routing ETIMEDOUT errors
+  tls: process.env.REDIS_URL.startsWith('rediss://') ? { rejectUnauthorized: false } : undefined
 });
 
 module.exports = connection;
