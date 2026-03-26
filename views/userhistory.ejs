@@ -492,14 +492,10 @@
       const publicInvoiceUrl = `${baseUrl}/invoice/<%= user._id %>${params.toString() ? '?' + params.toString() : ''}`;
 
       const text = `പ്രിയപ്പെട്ട <%= user.username %> ,
-
 നിങ്ങളുടെ ഈ മാസത്തെ ബിൽ തയ്യാറായി.
-
 താങ്കളുടെ മൊത്തം കുടിശ്ശിക തുക ₹<%= bills.reduce((acc, b)=> acc + b.totalAmount, 0) %> ആണ്.
-
 ബിൽ കാണാൻ താഴെയുള്ള ലിങ്ക് തുറക്കുക:
 \n${publicInvoiceUrl} 
-
 നന്ദി`;
       const encodedText = encodeURIComponent(text);
       const phone = '<%= user.phone %>';
