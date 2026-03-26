@@ -14,7 +14,7 @@ exports.postLogin = async (req, res) => {
     if (username === HARDCODED_USER.username) {
         const isMatch = await bcrypt.compare(password, HARDCODED_USER.passwordHash);
         if (isMatch) {
-            res.cookie('auth', 'true', { httpOnly: true, maxAge: 3600000 });
+            res.cookie('auth', 'true', { httpOnly: true, maxAge: 86400000 }); // 24 hours in ms
             return res.redirect('/dashboard');
         }
     }
