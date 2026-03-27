@@ -282,11 +282,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% if (bills.length===0) { %>
+                    <% if (previousBalance !== 0) { %>
+                        <tr>
+                            <td colspan="2" class="text-end fw-bold text-muted">Previous Balance</td>
+                            <td class="text-end fw-bold <%= previousBalance < 0 ? 'text-success' : '' %>">
+                                <%= previousBalance < 0 ? '-' : '' %>₹<%= Math.abs(previousBalance).toFixed(2) %>
+                            </td>
+                        </tr>
+                    <% } %>
+                    <% if (bills.length===0 && previousBalance === 0) { %>
                         <tr>
                             <td colspan="3" class="text-center">No transactions found.</td>
                         </tr>
-                        <% } else { %>
+                        <% } else if (bills.length > 0) { %>
                             <% bills.forEach(bill=> { %>
                                 <tr class="<%= bill.type === 'payment' ? 'payment' : 'purchase' %>">
                                     <td>
@@ -313,7 +321,7 @@
         <!-- Grand Total -->
         <div class="grand-total">
             <p class="text-muted fw-bold mb-1">TOTAL OUTSTANDING BALANCE</p>
-            <span>₹ <%= bills.reduce((acc, b)=> acc + b.totalAmount, 0).toFixed(2) %></span>
+            <span>₹ <%= (previousBalance + bills.reduce((acc, b)=> acc + b.totalAmount, 0)).toFixed(2) %></span>
         </div>
 
         <!-- Payment QR Section -->
