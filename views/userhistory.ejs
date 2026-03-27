@@ -491,7 +491,8 @@
       const baseUrl = window.location.origin;
       const publicInvoiceUrl = `${baseUrl}/invoice/<%= user._id %>${params.toString() ? '?' + params.toString() : ''}`;
 
-      const text = `പ്രിയപ്പെട്ട <%= user.username %> ,
+      const text = `✦ 𝑬𝑴𝑽 𝑩𝑨𝒁𝑨𝑹 ✦
+      പ്രിയപ്പെട്ട <%= user.username %> ,
 
 നിങ്ങളുടെ ഈ മാസത്തെ ബിൽ തയ്യാറായി.
 താങ്കളുടെ മൊത്തം കുടിശ്ശിക തുക ₹<%= bills.reduce((acc, b)=> acc + b.totalAmount, 0) %> ആണ്.
