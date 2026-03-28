@@ -75,6 +75,7 @@
             font-weight: 600;
             font-size: 0.85rem;
             color: var(--text-muted);
+            transition: all 0.3s ease;
         }
 
         input {
@@ -84,6 +85,7 @@
             border-radius: 8px;
             font-size: 1rem;
             outline: none;
+            transition: all 0.3s ease;
         }
 
         input:focus {
@@ -116,11 +118,118 @@
             font-size: 0.85rem;
             font-weight: 600;
         }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        button.tab-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0;
+            width: auto;
+        }
+
+        button.tab-btn.active {
+            background: white;
+            color: var(--primary-orange);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        button.tab-btn:hover {
+            background: #e2e8f0;
+        }
+
+        button.tab-btn.active:hover {
+            background: white;
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 1.5rem;
+        }
+
+        button.num-key {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 1.25rem 0;
+            border-radius: 12px;
+            transition: all 0.1s;
+            margin: 0;
+            width: 100%;
+        }
+
+        button.num-key:active {
+            background: #e2e8f0;
+            transform: scale(0.95);
+        }
+
+        button.num-key:hover {
+            background: #f1f5f9;
+            color: var(--primary-orange);
+            border-color: var(--primary-orange);
+        }
+
+        button.fn-key {
+            background: #e2e8f0;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+        
+        button.fn-key:hover {
+            background: #cbd5e1;
+            color: var(--text-dark);
+            border-color: var(--border);
+        }
+
+        button.fn-enter {
+            background: var(--primary-orange);
+            color: white;
+            border-color: var(--primary-orange);
+        }
+
+        button.fn-enter:hover {
+            background: #ea580c;
+            color: white;
+            border-color: #ea580c;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeSlideUp 0.3s ease forwards;
+        }
+
+        /* Prevent zooming on input focus on iOS */
+        @media screen and (max-width: 768px) {
+            input {
+                font-size: 16px !important;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div class="login-card">
+    <div class="login-card" id="login-card">
         <div class="logo">
             <img src="/image/logo.png" alt="">
         </div>
@@ -132,20 +241,111 @@
             </div>
             <% } %>
 
-                <form action="/login" method="POST">
-                    <div class="form-group">
+                <div class="login-tabs">
+                    <button type="button" id="tab-password" class="tab-btn active" onclick="switchTab('password')">Password</button>
+                    <button type="button" id="tab-pin" class="tab-btn" onclick="switchTab('pin')">PIN</button>
+                </div>
+
+                <form action="/login" method="POST" id="loginForm">
+                    <div class="form-group" id="username-group">
                         <label for="username">Admin Username</label>
-                        <input type="text" id="username" name="username" required>
+                        <input type="text" id="username" name="username" value="admin" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="password">Password</label>
+                    <div class="form-group" id="password-group">
+                        <label for="password" id="password-label">Password</label>
                         <input type="password" id="password" name="password" required>
                     </div>
 
-                    <button type="submit">Sign In</button>
+                    <div id="numpad" class="numpad" style="display: none;">
+                        <button type="button" class="num-key" onclick="pressKey('1')">1</button>
+                        <button type="button" class="num-key" onclick="pressKey('2')">2</button>
+                        <button type="button" class="num-key" onclick="pressKey('3')">3</button>
+                        <button type="button" class="num-key" onclick="pressKey('4')">4</button>
+                        <button type="button" class="num-key" onclick="pressKey('5')">5</button>
+                        <button type="button" class="num-key" onclick="pressKey('6')">6</button>
+                        <button type="button" class="num-key" onclick="pressKey('7')">7</button>
+                        <button type="button" class="num-key" onclick="pressKey('8')">8</button>
+                        <button type="button" class="num-key" onclick="pressKey('9')">9</button>
+                        <button type="button" class="num-key fn-key" onclick="pressKey('delete')">⌫</button>
+                        <button type="button" class="num-key" onclick="pressKey('0')">0</button>
+                        <button type="button" class="num-key fn-key fn-enter" onclick="document.getElementById('loginForm').submit()">✓</button>
+                    </div>
+
+                    <button type="submit" id="submit-btn" style="margin-top: 0.5rem;">Sign In</button>
                 </form>
     </div>
+    <script>
+        function switchTab(mode) {
+            const passwordInput = document.getElementById('password');
+            const usernameGroup = document.getElementById('username-group');
+            const numpad = document.getElementById('numpad');
+            const passwordLabel = document.getElementById('password-label');
+            const submitBtn = document.getElementById('submit-btn');
+            const loginCard = document.getElementById('login-card');
+
+            [usernameGroup, numpad, submitBtn, loginCard].forEach(el => {
+                el.classList.remove('animate-in');
+                void el.offsetWidth; // trigger reflow to restart animation
+            });
+
+            document.getElementById('tab-password').classList.remove('active');
+            document.getElementById('tab-pin').classList.remove('active');
+            document.getElementById('tab-' + mode).classList.add('active');
+
+            if (mode === 'pin') {
+                usernameGroup.style.display = 'none';
+                loginCard.style.height = '100vh';
+                
+                passwordInput.value = '';
+                passwordInput.readOnly = true;
+                passwordInput.inputMode = 'none';
+                passwordInput.style.textAlign = 'center';
+                passwordInput.style.fontSize = '1.75rem';
+                passwordInput.style.letterSpacing = '0.75rem';
+                passwordInput.placeholder = '••••••';
+                passwordLabel.innerText = 'Enter PIN';
+                
+                numpad.style.display = 'grid';
+                numpad.classList.add('animate-in');
+                submitBtn.style.display = 'none';
+            } else {
+                usernameGroup.style.display = 'block';
+                loginCard.style.height = 'auto';
+                usernameGroup.classList.add('animate-in');
+                
+                passwordInput.value = '';
+                passwordInput.readOnly = false;
+                passwordInput.inputMode = 'text';
+                passwordInput.style.textAlign = 'left';
+                passwordInput.style.fontSize = '1rem';
+                passwordInput.style.letterSpacing = 'normal';
+                passwordInput.placeholder = '';
+                passwordLabel.innerText = 'Password';
+                
+                numpad.style.display = 'none';
+                
+                submitBtn.style.display = 'block';
+                submitBtn.classList.add('animate-in');
+                
+                // Focus password input if they switch to password
+                setTimeout(() => document.getElementById('username').focus(), 50);
+            }
+        }
+
+        function pressKey(key) {
+            const passwordInput = document.getElementById('password');
+            if (key === 'clear') {
+                passwordInput.value = '';
+            } else if (key === 'delete') {
+                passwordInput.value = passwordInput.value.slice(0, -1);
+            } else {
+                if (passwordInput.value.length < 6) {
+                    passwordInput.value += key;
+                }
+            }
+        }
+    </script>
     <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
