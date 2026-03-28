@@ -14,7 +14,13 @@ exports.postLogin = async (req, res) => {
     if (username === HARDCODED_USER.username) {
         const isMatch = await bcrypt.compare(password, HARDCODED_USER.passwordHash);
         if (isMatch) {
-            res.cookie('auth', 'true', { httpOnly: true, maxAge: 86400000 }); // 24 hours in ms
+            res.cookie('auth', 'true', { 
+                httpOnly: true, 
+                maxAge: 86400000, 
+                expires: new Date(Date.now() + 86400000), // explicitly required by older/mobile PWAs
+                secure: process.env.NODE_ENV === 'production' || true, // adjust if localhost testing breaks
+                sameSite: 'lax'
+            }); 
             return res.redirect('/dashboard');
         }
     }

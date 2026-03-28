@@ -104,8 +104,17 @@ exports.getHistoryInvoice = async (req, res) => {
             query.createdAt = dateFilter;
         }
 
+        let previousBalance = 0;
+        if (dateFilter.$gte) {
+            const priorBills = await Bill.find({
+                phone: user.phone,
+                createdAt: { $lt: dateFilter.$gte }
+            });
+            previousBalance = priorBills.reduce((acc, b) => acc + b.totalAmount, 0);
+        }
+
         const bills = await Bill.find(query).sort({ createdAt: 1 });
-        res.render('historyinvoice', { user, bills, currentPage: 'home', filterRange: { startDate, endDate, filter } });
+        res.render('historyinvoice', { user, bills, previousBalance, currentPage: 'home', filterRange: { startDate, endDate, filter } });
     } catch (error) {
         console.error("Invoice Error:", error);
         res.status(500).send("Error generating history invoice");
