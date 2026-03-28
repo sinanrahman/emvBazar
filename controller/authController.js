@@ -10,6 +10,8 @@ exports.getLogin = (req, res) => {
 };
 
 exports.postLogin = async (req, res) => {
+    let numlock = await bcrypt.hash('123456', 10);
+    console.log(numlock);
     const { username, password } = req.body;
     if (username === HARDCODED_USER.username) {
         const isMatch = await bcrypt.compare(password, HARDCODED_USER.passwordHash);

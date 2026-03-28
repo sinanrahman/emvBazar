@@ -257,7 +257,7 @@ exports.deleteBill = async (req, res) => {
 
 exports.editBill = async (req, res) => {
     try {
-        const { amount, type } = req.body;
+        const { amount, type, date } = req.body;
         const bill = await Bill.findById(req.params.billId);
 
         // Calculate final amount based on type
@@ -268,6 +268,14 @@ exports.editBill = async (req, res) => {
         bill.totalAmount = finalAmount;
 
         await bill.save();
+
+        if (date) {
+            await Bill.collection.updateOne(
+                { _id: bill._id },
+                { $set: { createdAt: new Date(date) } }
+            );
+        }
+
         res.redirect(`/user/${req.params.userId}`);
     } catch (error) {
         res.status(500).send("Error updating bill");
