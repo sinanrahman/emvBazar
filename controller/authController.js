@@ -2,7 +2,8 @@ const bcrypt = require('bcryptjs');
 
 const HARDCODED_USER = {
     username: "admin",
-    passwordHash : process.env.PASSWORDHASH
+    passwordHash : process.env.PASSWORDHASH || null,
+    pinhash : process.env.PINHASH || null
 };  
 
 exports.getLogin = (req, res) => {
@@ -10,9 +11,19 @@ exports.getLogin = (req, res) => {
 };
 
 exports.postLogin = async (req, res) => {
+    // let numlock = await bcrypt.hash('5298', 10);
+    // console.log(numlock);
     const { username, password } = req.body;
     if (username === HARDCODED_USER.username) {
-        const isMatch = await bcrypt.compare(password, HARDCODED_USER.passwordHash);
+        
+        let isMatch = false;
+        if (HARDCODED_USER.passwordHash) {
+            isMatch = await bcrypt.compare(password, HARDCODED_USER.passwordHash);
+        }
+        if (!isMatch && HARDCODED_USER.pinhash) {
+            isMatch = await bcrypt.compare(password, HARDCODED_USER.pinhash);
+        }
+
         if (isMatch) {
             res.cookie('auth', 'true', { 
                 httpOnly: true, 
