@@ -78,6 +78,6 @@ app.post('/webhook', (req, res) => {
     }
 });
 
-app.listen(port,'100.83.82.45', () => {
+app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

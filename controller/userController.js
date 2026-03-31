@@ -62,7 +62,8 @@ exports.getByType = async (req, res) => {
 exports.getUserDetails = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
-        const bills = await Bill.find({ phone: user.phone });
+        // const bills = await Bill.find({ phone: user.phone });
+        const bills = await Bill.find({username:user.username})
         res.render('userDetails', { user, bills, currentPage: 'home' });
     } catch (error) {
         res.status(500).send("Error loading customer details");
@@ -72,7 +73,8 @@ exports.getUserDetails = async (req, res) => {
 exports.getUserHistory = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
-        const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: -1 });
+        // const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: -1 });
+        const bills = await Bill.find({ username:user.username }).sort({ createdAt: -1 });
         res.render('userhistory', { user, bills, currentPage: 'home' });
     } catch (error) {
         res.status(500).send("Error loading purchase history");
