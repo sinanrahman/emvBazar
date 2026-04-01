@@ -5,6 +5,11 @@ const billQueue = require('../queues/billQueue');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
 const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate, sendReminderTemplate } = require('../utils/whatsappService');
 
+User.on('index', (err) => {
+    if (err) console.error('Index error:', err);
+    else console.log('Indexes synced successfully');
+});
+
 exports.getHomePage = (req, res) => {
     res.render('home');
 };
@@ -62,7 +67,8 @@ exports.getByType = async (req, res) => {
 exports.getUserDetails = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
-        const bills = await Bill.find({ phone: user.phone });
+        // const bills = await Bill.find({ phone: user.phone });
+        const bills = await Bill.find({username:user.username})
         res.render('userDetails', { user, bills, currentPage: 'home' });
     } catch (error) {
         res.status(500).send("Error loading customer details");
@@ -72,7 +78,8 @@ exports.getUserDetails = async (req, res) => {
 exports.getUserHistory = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
-        const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: -1 });
+        // const bills = await Bill.find({ phone: user.phone }).sort({ createdAt: -1 });
+        const bills = await Bill.find({ username:user.username }).sort({ createdAt: -1 });
         res.render('userhistory', { user, bills, currentPage: 'home' });
     } catch (error) {
         res.status(500).send("Error loading purchase history");
@@ -316,9 +323,12 @@ exports.postEditUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        await User.findByIdAndDelete(req.params.id);
+        const user = await User.findById(req.params.id);
+        await Bill.deleteMany({username:user.username,phone:normalizePhone(user.phone)})
+        await User.deleteOne({username:user.username,phone:normalizePhone(user.phone)})
         res.redirect('/dashboard');
     } catch (error) {
+        console.log(error)
         res.status(500).send("Error deleting user");
     }
 };
@@ -429,6 +439,20 @@ exports.addUser = async (req, res) => {
         });
 
     } catch (err) {
+        if(err.code == '11000' && err.keyPattern.username == 1){
+            res.render('addUser', {
+            success: null,
+            error: 'User Exists cannot create Duplicate User',
+            currentPage: 'addUser'
+        });
+        }
+        if(err.code == '11000' && err.keyPattern.phone == 1){
+            res.render('addUser', {
+            success: null,
+            error: 'Phone Exists cannot create Duplicate Phone',
+            currentPage: 'addUser'
+        });
+        }
         res.render('addUser', {
             success: null,
             error: err.message,
