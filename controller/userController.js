@@ -5,10 +5,10 @@ const billQueue = require('../queues/billQueue');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
 const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate, sendReminderTemplate } = require('../utils/whatsappService');
 
-// User.on('index', (err) => {
-//     if (err) console.error('Index error:', err);
-//     else console.log('Indexes synced successfully');
-// });
+User.on('index', (err) => {
+    if (err) console.error('Index error:', err);
+    else console.log('Indexes synced successfully');
+});
 
 exports.getHomePage = (req, res) => {
     res.render('home');
@@ -439,6 +439,20 @@ exports.addUser = async (req, res) => {
         });
 
     } catch (err) {
+        if(err.code == '11000' && err.keyPattern.username == 1){
+            res.render('addUser', {
+            success: null,
+            error: 'User Exists cannot create Duplicate User',
+            currentPage: 'addUser'
+        });
+        }
+        if(err.code == '11000' && err.keyPattern.phone == 1){
+            res.render('addUser', {
+            success: null,
+            error: 'Phone Exists cannot create Duplicate Phone',
+            currentPage: 'addUser'
+        });
+        }
         res.render('addUser', {
             success: null,
             error: err.message,
