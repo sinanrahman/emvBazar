@@ -5,6 +5,11 @@ const billQueue = require('../queues/billQueue');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
 const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate, sendReminderTemplate } = require('../utils/whatsappService');
 
+// User.on('index', (err) => {
+//     if (err) console.error('Index error:', err);
+//     else console.log('Indexes synced successfully');
+// });
+
 exports.getHomePage = (req, res) => {
     res.render('home');
 };
@@ -318,9 +323,12 @@ exports.postEditUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        await User.findByIdAndDelete(req.params.id);
+        const user = await User.findById(req.params.id);
+        await Bill.deleteMany({username:user.username,phone:normalizePhone(user.phone)})
+        await User.deleteOne({username:user.username,phone:normalizePhone(user.phone)})
         res.redirect('/dashboard');
     } catch (error) {
+        console.log(error)
         res.status(500).send("Error deleting user");
     }
 };
