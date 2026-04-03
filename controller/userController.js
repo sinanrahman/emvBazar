@@ -1,7 +1,5 @@
 const User = require('../model/User');
 const Bill = require('../model/Bill');
-const { scheduleWelcomeMessage } = require('./messageController');
-const billQueue = require('../queues/billQueue');
 const { generatePDFBuffer } = require('../utils/pdfGenerator');
 const { uploadPDFToWhatsApp, sendDocumentMessage, sendStatementTemplate, sendReminderTemplate } = require('../utils/whatsappService');
 
@@ -347,18 +345,8 @@ exports.saveBillData = async (req, res) => {
 
         const savedBill = await newBill.save();
 
-        // Add to queue for WhatsApp delivery
-        // We pass the phone, the saved bill ID, and the admin's token for auth
-        // Use an environment variable for APP_URL (e.g., https://emv-bazar.onrender.com)
-        await billQueue.add('sendBill', {
-            billId: savedBill._id.toString(),
-            phone: phone,
-            adminAuth: req.cookies.auth, // Match the cookie name 'auth'
-            appUrl: process.env.APP_URL || `${req.protocol}://${req.get('host')}`
-        });
-
         res.status(200).json({
-            message: "Bill saved successfully and queued for WhatsApp delivery",
+            message: "Bill saved successfully",
             billId: savedBill._id
         });
     } catch (error) {
@@ -424,11 +412,6 @@ exports.addUser = async (req, res) => {
         });
 
         await newUser.save();
-
-        // Only schedule welcome template when user opted in for WhatsApp
-        if (newUser.whatsappOptIn) {
-            await scheduleWelcomeMessage(newUser);
-        }
 
 
 
